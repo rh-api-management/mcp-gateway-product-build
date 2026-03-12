@@ -1,0 +1,68 @@
+# ------------------------------------------------------------------------------
+# Build Stage
+# ------------------------------------------------------------------------------
+
+FROM registry.redhat.io/ubi9/ubi@sha256:b8923f58ef6aebe2b8f543f8f6c5af15c6f9aeeef34ba332f33bf7610012de0c AS builder
+
+RUN PKGS="golang git" \
+    && dnf install --nodocs --assumeyes $PKGS \
+    && rpm --verify --nogroup --nouser $PKGS \
+    && yum -y clean all
+
+WORKDIR /tmp/mcp-gateway
+
+COPY mcp-gateway/go.mod mcp-gateway/go.sum ./
+RUN go mod download --offline
+
+COPY mcp-gateway/cmd/ cmd/
+COPY mcp-gateway/internal/ internal/
+COPY mcp-gateway/api/ api/
+
+ARG GITHUB_SHA
+ENV GITHUB_SHA=${GITHUB_SHA:-unknown}
+
+RUN CGO_ENABLED=0 GOOS=linux go build \
+    -ldflags "-X main.version=${GITHUB_SHA}" \
+    -o mcp_controller \
+    --offline \
+    cmd/main.go
+
+COPY mcp-gateway/LICENSE /licenses/LICENSE
+
+# ------------------------------------------------------------------------------
+# Run Stage
+# ------------------------------------------------------------------------------
+
+FROM registry.redhat.io/ubi9/ubi-minimal@sha256:b8923f58ef6aebe2b8f543f8f6c5af15c6f9aeeef34ba332f33bf7610012de0c
+
+LABEL version="1.0.0" \
+      com.redhat.component="mcp-controller-container" \
+      name="rhcl-1/mcp-controller-rhel9" \
+      cpe="cpe:/a:redhat:connectivity_link:1::el9" \
+      vendor="Red Hat, Inc." \
+      summary="MCP Gateway Kubernetes controller" \
+      description="Kubernetes controller for discovering and managing MCP servers via MCPGatewayExtension, MCPServerRegistration, and MCPVirtualServer CRDs." \
+      io.k8s.display-name="MCP Controller" \
+      io.k8s.description="Kubernetes controller for MCP Gateway CRDs" \
+      io.openshift.tags="mcp, controller, kubernetes, operator" \
+      maintainer="Kuadrant <kuadrant-dev@redhat.com>"
+
+RUN PKGS="shadow-utils" \
+    && microdnf --assumeyes install --nodocs $PKGS \
+    && rpm --verify --nogroup --nouser $PKGS \
+    && microdnf --assumeyes clean all
+
+RUN useradd -u 1000 -s /bin/sh -m -d /home/mcp-controller mcp-controller
+
+WORKDIR /home/mcp-controller/bin/
+ENV PATH="/home/mcp-controller/bin:${PATH}"
+
+COPY --from=builder /tmp/mcp-gateway/mcp_controller ./mcp_controller
+COPY --from=builder /licenses/LICENSE /licenses/LICENSE
+
+RUN chown -R mcp-controller:root /home/mcp-controller \
+    && chmod -R 750 /home/mcp-controller
+
+USER mcp-controller
+
+CMD ["./mcp_controller"]

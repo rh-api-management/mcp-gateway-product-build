@@ -1,0 +1,10 @@
+contentOrigin:
+  repofiles:
+    - ./ubi.repo
+context:
+  image: registry.redhat.io/ubi9/ubi:latest
+packages:
+  - golang
+  - git
+  - shadow-utils
+arches: [x86_64, aarch64]
