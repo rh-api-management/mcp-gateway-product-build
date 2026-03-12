@@ -1,42 +1,40 @@
-# ------------------------------------------------------------------------------
-# Build Stage
-# ------------------------------------------------------------------------------
+################################
+# MCP Controller
+################################
 
-FROM registry.redhat.io/ubi9/ubi@sha256:b8923f58ef6aebe2b8f543f8f6c5af15c6f9aeeef34ba332f33bf7610012de0c AS builder
+FROM registry.redhat.io/ubi9/go-toolset:latest AS builder
 
-RUN PKGS="golang git" \
-    && dnf install --nodocs --assumeyes $PKGS \
-    && rpm --verify --nogroup --nouser $PKGS \
-    && yum -y clean all
+ENV BINARY_NAME="mcp_controller"
 
-WORKDIR /tmp/mcp-gateway
+WORKDIR /workspace
 
-COPY mcp-gateway/go.mod mcp-gateway/go.sum ./
-RUN go mod download --offline
+# Copy the Go Modules manifests
+COPY mcp-gateway/go.mod go.mod
+COPY mcp-gateway/go.sum go.sum
+# cache deps before building and copying source so that we don't need to re-download as much
+# and so that source changes don't invalidate our downloaded layer
+RUN go mod download
 
+# Copy the go source
 COPY mcp-gateway/cmd/ cmd/
 COPY mcp-gateway/internal/ internal/
 COPY mcp-gateway/api/ api/
+COPY mcp-gateway/LICENSE /licenses/LICENSE
 
 ARG GITHUB_SHA
 ENV GITHUB_SHA=${GITHUB_SHA:-unknown}
 
+# Build MCP Controller
 RUN CGO_ENABLED=0 GOOS=linux go build \
     -ldflags "-X main.version=${GITHUB_SHA}" \
-    -o mcp_controller \
-    --offline \
+    -o ${BINARY_NAME} \
     cmd/main.go
 
-COPY mcp-gateway/LICENSE /licenses/LICENSE
 
-# ------------------------------------------------------------------------------
-# Run Stage
-# ------------------------------------------------------------------------------
-
-FROM registry.redhat.io/ubi9/ubi-minimal@sha256:b8923f58ef6aebe2b8f543f8f6c5af15c6f9aeeef34ba332f33bf7610012de0c
+FROM registry.redhat.io/ubi9/ubi-minimal:latest
 
 LABEL version="1.0.0" \
-      com.redhat.component="mcp-controller-container" \
+      com.redhat.component="mcp-controller" \
       name="rhcl-1/mcp-controller-rhel9" \
       cpe="cpe:/a:redhat:connectivity_link:1::el9" \
       vendor="Red Hat, Inc." \
@@ -44,25 +42,22 @@ LABEL version="1.0.0" \
       description="Kubernetes controller for discovering and managing MCP servers via MCPGatewayExtension, MCPServerRegistration, and MCPVirtualServer CRDs." \
       io.k8s.display-name="MCP Controller" \
       io.k8s.description="Kubernetes controller for MCP Gateway CRDs" \
+      io.openshift.expose-services="" \
       io.openshift.tags="mcp, controller, kubernetes, operator" \
-      maintainer="Kuadrant <kuadrant-dev@redhat.com>"
+      vendor="Red Hat, Inc."
 
-RUN PKGS="shadow-utils" \
-    && microdnf --assumeyes install --nodocs $PKGS \
-    && rpm --verify --nogroup --nouser $PKGS \
-    && microdnf --assumeyes clean all
+ENV OPERATOR_BINARY_NAME="mcp_controller" \
+    USER_UID=1001 \
+    USER_NAME=mcp-controller
 
-RUN useradd -u 1000 -s /bin/sh -m -d /home/mcp-controller mcp-controller
+USER root
 
-WORKDIR /home/mcp-controller/bin/
-ENV PATH="/home/mcp-controller/bin:${PATH}"
+# install operator binary
+COPY --from=builder /workspace/${OPERATOR_BINARY_NAME} /
+RUN chown ${USER_UID} /${OPERATOR_BINARY_NAME}
 
-COPY --from=builder /tmp/mcp-gateway/mcp_controller ./mcp_controller
-COPY --from=builder /licenses/LICENSE /licenses/LICENSE
+COPY --from=builder /licenses/LICENSE ./licenses/LICENSE
 
-RUN chown -R mcp-controller:root /home/mcp-controller \
-    && chmod -R 750 /home/mcp-controller
+ENTRYPOINT ["/mcp_controller"]
 
-USER mcp-controller
-
-CMD ["./mcp_controller"]
+USER ${USER_UID}
