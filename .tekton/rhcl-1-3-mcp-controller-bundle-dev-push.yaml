@@ -61,7 +61,7 @@ spec:
       description: Execute the build with network isolation
       name: hermetic
       type: string
-    - default: '[{"type": "rpm", "path": "."}]'
+    - default: ''
       description: Build dependencies to be prefetched
       name: prefetch-input
       type: string
