@@ -28,7 +28,7 @@ spec:
   - name: build-image-index
     value: "false"
   - name: prefetch-input
-    value: ''
+    value: '[{"type": "rpm", "path": "."}, {"type": "gomod", "path": "mcp-gateway/"}]'
   pipelineRef:
     name: bundle-build-pipeline
   taskRunTemplate:
