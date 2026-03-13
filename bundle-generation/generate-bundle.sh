@@ -1,0 +1,139 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+REPO_ROOT="$(cd "${SCRIPT_DIR}/.." && pwd)"
+CONFIG="${SCRIPT_DIR}/mcp-gateway.yaml"
+
+# check for yq
+if ! command -v yq &>/dev/null; then
+    echo "error: yq is required. install it from https://github.com/mikefarah/yq"
+    exit 1
+fi
+
+# validate config exists
+if [ ! -f "$CONFIG" ]; then
+    echo "error: config not found at ${CONFIG}"
+    exit 1
+fi
+
+UPSTREAM_BUNDLE="${REPO_ROOT}/$(yq '.upstream_bundle' "$CONFIG")"
+DOWNSTREAM_BUNDLE="${SCRIPT_DIR}/bundle"
+
+if [ ! -d "$UPSTREAM_BUNDLE" ]; then
+    echo "error: upstream bundle not found at ${UPSTREAM_BUNDLE}"
+    echo "make sure the mcp-gateway submodule is initialized: git submodule update --init"
+    exit 1
+fi
+
+# load CSV metadata from config
+CSV_NAME="$(yq '.csv.name' "$CONFIG")"
+CSV_VERSION="$(yq '.csv.version' "$CONFIG")"
+CSV_DISPLAY_NAME="$(yq '.csv.displayName' "$CONFIG")"
+CSV_DESCRIPTION="$(yq '.csv.description' "$CONFIG")"
+CHANNEL="$(yq '.channel' "$CONFIG")"
+
+# load icon
+ICON_BASE64="$(yq '.csv.icon[0].base64data' "$CONFIG")"
+ICON_MEDIATYPE="$(yq '.csv.icon[0].mediatype' "$CONFIG")"
+
+# load links
+DOCS_URL="$(yq '.links.documentation' "$CONFIG")"
+REPO_URL="$(yq '.links.repository' "$CONFIG")"
+
+# load features
+DISCONNECTED="$(yq '.features.disconnected' "$CONFIG")"
+FIPS="$(yq '.features.fips_compliant' "$CONFIG")"
+PROXY="$(yq '.features.proxy_aware' "$CONFIG")"
+
+echo "generating bundles for ${CSV_NAME} (v${CSV_VERSION})"
+echo ""
+
+for env in dev stage prod; do
+    output_dir="${REPO_ROOT}/$(yq ".output.${env}" "$CONFIG")"
+
+    echo "=== ${env} === (${output_dir})"
+
+    # clean and copy from upstream
+    rm -rf "${output_dir}"
+    mkdir -p "${output_dir}/manifests" "${output_dir}/metadata"
+
+    # copy manifests (CSV + CRDs) from upstream
+    cp "${UPSTREAM_BUNDLE}"/manifests/*.yaml "${output_dir}/manifests/"
+
+    # copy metadata from downstream override (annotations with Red Hat-specific values)
+    cp "${DOWNSTREAM_BUNDLE}"/metadata/*.yaml "${output_dir}/metadata/"
+    echo "  metadata: using downstream annotations"
+
+    csv="${output_dir}/manifests/mcp-gateway.clusterserviceversion.yaml"
+
+    # --- CSV metadata ---
+    yq -i ".metadata.name = \"${CSV_NAME}\"" "$csv"
+    yq -i ".spec.version = \"${CSV_VERSION}\"" "$csv"
+    yq -i ".spec.displayName = \"${CSV_DISPLAY_NAME}\"" "$csv"
+    yq -i ".spec.description = \"${CSV_DESCRIPTION}\"" "$csv"
+    echo "  csv: ${CSV_NAME}"
+
+    # --- icon ---
+    yq -i ".spec.icon[0].base64data = \"${ICON_BASE64}\"" "$csv"
+    yq -i ".spec.icon[0].mediatype = \"${ICON_MEDIATYPE}\"" "$csv"
+    echo "  icon: replaced with RHCL product icon"
+
+    # --- links ---
+    yq -i ".spec.links[0].name = \"Documentation\"" "$csv"
+    yq -i ".spec.links[0].url = \"${DOCS_URL}\"" "$csv"
+    yq -i ".spec.links[1].name = \"Repository\"" "$csv"
+    yq -i ".spec.links[1].url = \"${REPO_URL}\"" "$csv"
+
+    # --- annotations ---
+    yq -i '.metadata.annotations.vendor = "Red Hat, Inc."' "$csv"
+    yq -i ".metadata.annotations.repository = \"${REPO_URL}\"" "$csv"
+    yq -i '.metadata.annotations.support = "Red Hat"' "$csv"
+
+    # feature annotations
+    yq -i ".metadata.annotations.\"features.operators.openshift.io/disconnected\" = \"${DISCONNECTED}\"" "$csv"
+    yq -i ".metadata.annotations.\"features.operators.openshift.io/fips-compliant\" = \"${FIPS}\"" "$csv"
+    yq -i ".metadata.annotations.\"features.operators.openshift.io/proxy-aware\" = \"${PROXY}\"" "$csv"
+
+    # architecture labels
+    for arch in $(yq '.architectures[]' "$CONFIG"); do
+        yq -i ".metadata.labels.\"operatorframework.io/arch.${arch}\" = \"supported\"" "$csv"
+        yq -i ".metadata.labels.\"operatorframework.io/os.linux\" = \"supported\"" "$csv"
+    done
+    echo "  architectures: $(yq '.architectures | join(", ")' "$CONFIG")"
+
+    # --- image references ---
+    for image_key in mcp-gateway mcp-controller; do
+        upstream_ref="$(yq ".upstream.\"${image_key}\"" "$CONFIG")"
+        target_ref="$(yq ".registries.${env}.\"${image_key}\"" "$CONFIG")"
+
+        # for dev, use the ref as-is (nudging will pin to @sha256:)
+        # for stage/prod, append :latest (will be manually updated with digests)
+        if [ "$env" = "dev" ]; then
+            full_ref="${target_ref}:latest"
+        else
+            full_ref="${target_ref}:latest"
+        fi
+
+        echo "  ${image_key}: ${upstream_ref} -> ${full_ref}"
+        sed -i'' -e "s|${upstream_ref}|${full_ref}|g" "$csv"
+    done
+
+    # update containerImage annotation
+    controller_ref="$(yq ".registries.${env}.mcp-controller" "$CONFIG")"
+    yq -i ".metadata.annotations.containerImage = \"${controller_ref}:latest\"" "$csv"
+
+    # ensure relatedImages has both entries
+    gateway_ref="$(yq ".registries.${env}.mcp-gateway" "$CONFIG")"
+    yq -i ".spec.relatedImages = [{\"image\": \"${gateway_ref}:latest\", \"name\": \"router-broker\"}, {\"image\": \"${controller_ref}:latest\", \"name\": \"controller\"}]" "$csv"
+
+    # --- cleanup upstream-only fields ---
+    yq -i 'del(.spec.replaces)' "$csv"
+    yq -i 'del(.spec.skipRange)' "$csv"
+
+    echo "  done"
+    echo ""
+done
+
+echo "bundle generation complete. review changes with:"
+echo "  git diff bundle-dev/ bundle-stage/ bundle/"
