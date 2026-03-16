@@ -4,17 +4,18 @@ metadata:
   annotations:
     build.appstudio.openshift.io/repo: https://github.com/rh-api-management/mcp-gateway-product-build?rev={{revision}}
     build.appstudio.redhat.com/commit_sha: '{{revision}}'
+    build.appstudio.redhat.com/pull_request_number: '{{pull_request_number}}'
     build.appstudio.redhat.com/target_branch: '{{target_branch}}'
-    pipelinesascode.tekton.dev/cancel-in-progress: "false"
+    pipelinesascode.tekton.dev/cancel-in-progress: "true"
     pipelinesascode.tekton.dev/max-keep-runs: "3"
-    pipelinesascode.tekton.dev/on-cel-expression: event == "push" && target_branch
+    pipelinesascode.tekton.dev/on-cel-expression: event == "pull_request" && target_branch
       == "rhcl-1.3"
   creationTimestamp: null
   labels:
     appstudio.openshift.io/application: rhcl-1-3-mcp-gateway
-    appstudio.openshift.io/component: rhcl-1-3-mcp-controller
+    appstudio.openshift.io/component: rhcl-1-3-mcp-operator-bundle-stage
     pipelines.appstudio.openshift.io/type: build
-  name: rhcl-1-3-mcp-controller-on-push
+  name: rhcl-1-3-mcp-operator-bundle-stage-on-pull-request
   namespace: api-management-tenant
 spec:
   params:
@@ -23,9 +24,11 @@ spec:
   - name: revision
     value: '{{revision}}'
   - name: output-image
-    value: quay.io/redhat-user-workloads/api-management-tenant/rhcl-1-3-mcp-controller:{{revision}}
+    value: quay.io/redhat-user-workloads/api-management-tenant/rhcl-1-3-mcp-operator-bundle-stage:on-pr-{{revision}}
+  - name: image-expires-after
+    value: 5d
   - name: dockerfile
-    value: Containerfile.mcp-controller
+    value: Containerfile.bundle-stage
   pipelineSpec:
     description: |
       This pipeline is ideal for building container images from a Containerfile while maintaining trust after pipeline customization.
@@ -61,7 +64,7 @@ spec:
       description: Execute the build with network isolation
       name: hermetic
       type: string
-    - default: '[{"type": "gomod", "path": "mcp-gateway/"}]'
+    - default: ''
       description: Build dependencies to be prefetched
       name: prefetch-input
       type: string
@@ -572,7 +575,7 @@ spec:
     - name: netrc
       optional: true
   taskRunTemplate:
-    serviceAccountName: build-pipeline-rhcl-1-3-mcp-controller
+    serviceAccountName: build-pipeline-rhcl-1-3-mcp-operator-bundle-stage
   workspaces:
   - name: git-auth
     secret:

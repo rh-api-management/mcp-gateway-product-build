@@ -13,9 +13,9 @@ metadata:
   creationTimestamp: null
   labels:
     appstudio.openshift.io/application: rhcl-1-3-mcp-gateway
-    appstudio.openshift.io/component: rhcl-1-3-mcp-controller
+    appstudio.openshift.io/component: rhcl-1-3-mcp-operator-bundle
     pipelines.appstudio.openshift.io/type: build
-  name: rhcl-1-3-mcp-controller-on-pull-request
+  name: rhcl-1-3-mcp-operator-bundle-on-pull-request
   namespace: api-management-tenant
 spec:
   params:
@@ -24,11 +24,11 @@ spec:
   - name: revision
     value: '{{revision}}'
   - name: output-image
-    value: quay.io/redhat-user-workloads/api-management-tenant/rhcl-1-3-mcp-controller:on-pr-{{revision}}
+    value: quay.io/redhat-user-workloads/api-management-tenant/rhcl-1-3-mcp-operator-bundle:on-pr-{{revision}}
   - name: image-expires-after
     value: 5d
   - name: dockerfile
-    value: Containerfile.mcp-controller
+    value: Containerfile.bundle
   pipelineSpec:
     description: |
       This pipeline is ideal for building container images from a Containerfile while maintaining trust after pipeline customization.
@@ -64,7 +64,7 @@ spec:
       description: Execute the build with network isolation
       name: hermetic
       type: string
-    - default: '[{"type": "gomod", "path": "mcp-gateway/"}]'
+    - default: ''
       description: Build dependencies to be prefetched
       name: prefetch-input
       type: string
@@ -575,7 +575,7 @@ spec:
     - name: netrc
       optional: true
   taskRunTemplate:
-    serviceAccountName: build-pipeline-rhcl-1-3-mcp-controller
+    serviceAccountName: build-pipeline-rhcl-1-3-mcp-operator-bundle
   workspaces:
   - name: git-auth
     secret:
