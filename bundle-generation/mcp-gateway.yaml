@@ -49,7 +49,7 @@ upstream:
   mcp-operator: ghcr.io/kuadrant/mcp-controller:latest
 
 # source: upstream bundle directory from the submodule
-upstream_bundle: mcp-gateway/bundle
+upstream_bundle: mcp-operator/bundle
 
 # output directories for each variant
 output:
