@@ -4,17 +4,18 @@ metadata:
   annotations:
     build.appstudio.openshift.io/repo: https://github.com/rh-api-management/mcp-gateway-product-build?rev={{revision}}
     build.appstudio.redhat.com/commit_sha: '{{revision}}'
+    build.appstudio.redhat.com/pull_request_number: '{{pull_request_number}}'
     build.appstudio.redhat.com/target_branch: '{{target_branch}}'
-    pipelinesascode.tekton.dev/cancel-in-progress: "false"
+    pipelinesascode.tekton.dev/cancel-in-progress: "true"
     pipelinesascode.tekton.dev/max-keep-runs: "3"
-    pipelinesascode.tekton.dev/on-cel-expression: event == "push" && target_branch
+    pipelinesascode.tekton.dev/on-cel-expression: event == "pull_request" && target_branch
       == "rhcl-1.3"
   creationTimestamp: null
   labels:
     appstudio.openshift.io/application: rhcl-1-3-mcp-gateway
-    appstudio.openshift.io/component: rhcl-1-3-mcp-controller-bundle-dev
+    appstudio.openshift.io/component: rhcl-1-3-mcp-operator-bundle-stage
     pipelines.appstudio.openshift.io/type: build
-  name: rhcl-1-3-mcp-controller-bundle-dev-on-push
+  name: rhcl-1-3-mcp-operator-bundle-stage-on-pull-request
   namespace: api-management-tenant
 spec:
   params:
@@ -23,9 +24,11 @@ spec:
   - name: revision
     value: '{{revision}}'
   - name: output-image
-    value: quay.io/redhat-user-workloads/api-management-tenant/rhcl-1-3-mcp-controller-bundle-dev:{{revision}}
+    value: quay.io/redhat-user-workloads/api-management-tenant/rhcl-1-3-mcp-operator-bundle-stage:on-pr-{{revision}}
+  - name: image-expires-after
+    value: 5d
   - name: dockerfile
-    value: Containerfile.bundle-dev
+    value: Containerfile.bundle-stage
   pipelineSpec:
     description: |
       This pipeline is ideal for building container images from a Containerfile while maintaining trust after pipeline customization.
@@ -167,7 +170,7 @@ spec:
         - name: name
           value: prefetch-dependencies-oci-ta
         - name: bundle
-          value: quay.io/konflux-ci/tekton-catalog/task-prefetch-dependencies-oci-ta:0.2@sha256:22612d629796a29ddd177d6e29c18a4319875d4e2348286ea01d16427cec0dc1
+          value: quay.io/konflux-ci/tekton-catalog/task-prefetch-dependencies-oci-ta:0.3@sha256:a579d00fe370b6d9a1cb1751c883ecd0ec9f663604344e2fd61e1f6d5bf4e990
         - name: kind
           value: task
         resolver: bundles
@@ -572,7 +575,7 @@ spec:
     - name: netrc
       optional: true
   taskRunTemplate:
-    serviceAccountName: build-pipeline-rhcl-1-3-mcp-controller-bundle-dev
+    serviceAccountName: build-pipeline-rhcl-1-3-mcp-operator-bundle-stage
   workspaces:
   - name: git-auth
     secret:
