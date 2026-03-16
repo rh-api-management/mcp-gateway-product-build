@@ -1,5 +1,5 @@
 ################################
-# MCP Controller
+# MCP Operator
 ################################
 
 FROM registry.redhat.io/ubi9/go-toolset:latest AS builder
@@ -24,7 +24,7 @@ COPY mcp-gateway/LICENSE /licenses/LICENSE
 ARG GITHUB_SHA
 ENV GITHUB_SHA=${GITHUB_SHA:-unknown}
 
-# Build MCP Controller
+# Build MCP Operator
 RUN CGO_ENABLED=0 GOOS=linux go build \
     -ldflags "-X main.version=${GITHUB_SHA}" \
     -o ${BINARY_NAME} \
@@ -34,21 +34,21 @@ RUN CGO_ENABLED=0 GOOS=linux go build \
 FROM registry.redhat.io/ubi9/ubi-minimal:latest
 
 LABEL version="1.0.0" \
-      com.redhat.component="mcp-controller" \
-      name="rhcl-1/mcp-controller-rhel9" \
+      com.redhat.component="mcp-operator" \
+      name="rhcl-1/mcp-operator-rhel9" \
       cpe="cpe:/a:redhat:connectivity_link:1::el9" \
       vendor="Red Hat, Inc." \
-      summary="MCP Gateway Kubernetes controller" \
-      description="Kubernetes controller for discovering and managing MCP servers via MCPGatewayExtension, MCPServerRegistration, and MCPVirtualServer CRDs." \
-      io.k8s.display-name="MCP Controller" \
-      io.k8s.description="Kubernetes controller for MCP Gateway CRDs" \
+      summary="MCP Gateway Kubernetes operator" \
+      description="Kubernetes operator for discovering and managing MCP servers via MCPGatewayExtension, MCPServerRegistration, and MCPVirtualServer CRDs." \
+      io.k8s.display-name="MCP Operator" \
+      io.k8s.description="Kubernetes operator for MCP Gateway CRDs" \
       io.openshift.expose-services="" \
       io.openshift.tags="mcp, controller, kubernetes, operator" \
       vendor="Red Hat, Inc."
 
 ENV OPERATOR_BINARY_NAME="mcp_controller" \
     USER_UID=1001 \
-    USER_NAME=mcp-controller
+    USER_NAME=mcp-operator
 
 USER root
 

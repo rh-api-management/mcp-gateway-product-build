@@ -103,7 +103,7 @@ for env in dev stage prod; do
     echo "  architectures: $(yq '.architectures | join(", ")' "$CONFIG")"
 
     # --- image references ---
-    for image_key in mcp-gateway mcp-controller; do
+    for image_key in mcp-gateway mcp-operator; do
         upstream_ref="$(yq ".upstream.\"${image_key}\"" "$CONFIG")"
         target_ref="$(yq ".registries.${env}.\"${image_key}\"" "$CONFIG")"
 
@@ -120,7 +120,7 @@ for env in dev stage prod; do
     done
 
     # update containerImage annotation
-    controller_ref="$(yq ".registries.${env}.mcp-controller" "$CONFIG")"
+    controller_ref="$(yq ".registries.${env}.mcp-operator" "$CONFIG")"
     yq -i ".metadata.annotations.containerImage = \"${controller_ref}:latest\"" "$csv"
 
     # ensure relatedImages has both entries
