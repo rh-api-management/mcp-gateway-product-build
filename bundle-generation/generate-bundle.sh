@@ -4,6 +4,7 @@ set -euo pipefail
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 REPO_ROOT="$(cd "${SCRIPT_DIR}/.." && pwd)"
 CONFIG="${SCRIPT_DIR}/mcp-gateway.yaml"
+IMAGE_PULLSPECS="${REPO_ROOT}/image-pullspecs.yaml"
 
 # check for yq
 if ! command -v yq &>/dev/null; then
@@ -17,12 +18,17 @@ if [ ! -f "$CONFIG" ]; then
     exit 1
 fi
 
+if [ ! -f "$IMAGE_PULLSPECS" ]; then
+    echo "error: image pullspecs not found at ${IMAGE_PULLSPECS}"
+    exit 1
+fi
+
 UPSTREAM_BUNDLE="${REPO_ROOT}/$(yq '.upstream_bundle' "$CONFIG")"
 DOWNSTREAM_BUNDLE="${SCRIPT_DIR}/bundle"
 
 if [ ! -d "$UPSTREAM_BUNDLE" ]; then
     echo "error: upstream bundle not found at ${UPSTREAM_BUNDLE}"
-    echo "make sure the mcp-gateway submodule is initialized: git submodule update --init"
+    echo "make sure the mcp-operator submodule is initialized: git submodule update --init"
     exit 1
 fi
 
@@ -46,8 +52,44 @@ DISCONNECTED="$(yq '.features.disconnected' "$CONFIG")"
 FIPS="$(yq '.features.fips_compliant' "$CONFIG")"
 PROXY="$(yq '.features.proxy_aware' "$CONFIG")"
 
+# read image pullspecs
+MCP_GATEWAY_IMAGE="$(yq '.images.mcp_gateway' "$IMAGE_PULLSPECS")"
+MCP_OPERATOR_IMAGE="$(yq '.images.mcp_operator' "$IMAGE_PULLSPECS")"
+
+echo "========================================"
 echo "generating bundles for ${CSV_NAME} (v${CSV_VERSION})"
 echo ""
+echo "image pullspecs:"
+echo "  mcp_gateway:  ${MCP_GATEWAY_IMAGE}"
+echo "  mcp_operator: ${MCP_OPERATOR_IMAGE}"
+echo "========================================"
+echo ""
+
+# extract SHAs from the images (if digest-pinned)
+MCP_GATEWAY_SHA="${MCP_GATEWAY_IMAGE##*@}"
+MCP_OPERATOR_SHA="${MCP_OPERATOR_IMAGE##*@}"
+
+# helper: get the image ref for a given component and environment
+get_image() {
+    local component=$1
+    local env=$2
+    local image sha registry
+
+    if [ "$component" = "mcp-gateway" ]; then
+        image="$MCP_GATEWAY_IMAGE"
+        sha="$MCP_GATEWAY_SHA"
+    else
+        image="$MCP_OPERATOR_IMAGE"
+        sha="$MCP_OPERATOR_SHA"
+    fi
+
+    if [ "$env" = "dev" ]; then
+        echo "$image"
+    else
+        registry="$(yq ".registries.${env}.\"${component}\"" "$CONFIG")"
+        echo "${registry}@${sha}"
+    fi
+}
 
 for env in dev stage prod; do
     output_dir="${REPO_ROOT}/$(yq ".output.${env}" "$CONFIG")"
@@ -103,29 +145,26 @@ for env in dev stage prod; do
     echo "  architectures: $(yq '.architectures | join(", ")' "$CONFIG")"
 
     # --- image references ---
+    gateway_image="$(get_image mcp-gateway "$env")"
+    operator_image="$(get_image mcp-operator "$env")"
+
     for image_key in mcp-gateway mcp-operator; do
         upstream_ref="$(yq ".upstream.\"${image_key}\"" "$CONFIG")"
-        target_ref="$(yq ".registries.${env}.\"${image_key}\"" "$CONFIG")"
-
-        # for dev, use the ref as-is (nudging will pin to @sha256:)
-        # for stage/prod, append :latest (will be manually updated with digests)
-        if [ "$env" = "dev" ]; then
-            full_ref="${target_ref}:latest"
+        if [ "$image_key" = "mcp-gateway" ]; then
+            target_ref="$gateway_image"
         else
-            full_ref="${target_ref}:latest"
+            target_ref="$operator_image"
         fi
 
-        echo "  ${image_key}: ${upstream_ref} -> ${full_ref}"
-        sed -i'' -e "s|${upstream_ref}|${full_ref}|g" "$csv"
+        echo "  ${image_key}: ${upstream_ref} -> ${target_ref}"
+        sed -i'' -e "s|${upstream_ref}|${target_ref}|g" "$csv"
     done
 
     # update containerImage annotation
-    controller_ref="$(yq ".registries.${env}.mcp-operator" "$CONFIG")"
-    yq -i ".metadata.annotations.containerImage = \"${controller_ref}:latest\"" "$csv"
+    yq -i ".metadata.annotations.containerImage = \"${operator_image}\"" "$csv"
 
     # ensure relatedImages has both entries
-    gateway_ref="$(yq ".registries.${env}.mcp-gateway" "$CONFIG")"
-    yq -i ".spec.relatedImages = [{\"image\": \"${gateway_ref}:latest\", \"name\": \"router-broker\"}, {\"image\": \"${controller_ref}:latest\", \"name\": \"controller\"}]" "$csv"
+    yq -i ".spec.relatedImages = [{\"image\": \"${gateway_image}\", \"name\": \"router-broker\"}, {\"image\": \"${operator_image}\", \"name\": \"controller\"}]" "$csv"
 
     # --- cleanup upstream-only fields ---
     yq -i 'del(.spec.replaces)' "$csv"
