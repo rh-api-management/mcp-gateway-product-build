@@ -1,5 +1,5 @@
 # Image pullspecs for MCP Gateway bundle
 # This file is updated automatically by Konflux
 images:
-  mcp_gateway: quay.io/redhat-user-workloads/api-management-tenant/rhcl-1-3-mcp-gateway/rhcl-1-3-mcp-gateway:latest
-  mcp_operator: quay.io/redhat-user-workloads/api-management-tenant/rhcl-1-3-mcp-gateway/rhcl-1-3-mcp-operator:latest
+  mcp_gateway: quay.io/redhat-user-workloads/api-management-tenant/rhcl-1-3-mcp-gateway@sha256:d7af6f0adcb40745616dc4fe6b3b48be2fb352e8ec20b8db7f93d231ef7ebfe3
+  mcp_operator: quay.io/redhat-user-workloads/api-management-tenant/rhcl-1-3-mcp-operator@sha256:03b76a19c70a54ce7a4fa582b47f70a5a6535c958207396ed73ff6ae4647d17b

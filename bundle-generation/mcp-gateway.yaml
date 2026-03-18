@@ -34,8 +34,8 @@ architectures:
 # image registries per environment
 registries:
   dev:
-    mcp-gateway: quay.io/redhat-user-workloads/api-management-tenant/rhcl-1-3-mcp-gateway/rhcl-1-3-mcp-gateway
-    mcp-operator: quay.io/redhat-user-workloads/api-management-tenant/rhcl-1-3-mcp-gateway/rhcl-1-3-mcp-operator
+    mcp-gateway: quay.io/redhat-user-workloads/api-management-tenant/rhcl-1-3-mcp-gateway
+    mcp-operator: quay.io/redhat-user-workloads/api-management-tenant/rhcl-1-3-mcp-operator
   stage:
     mcp-gateway: registry.stage.redhat.io/rhcl-1/mcp-gateway-rhel9
     mcp-operator: registry.stage.redhat.io/rhcl-1/mcp-operator-rhel9
