@@ -9,7 +9,9 @@ metadata:
     pipelinesascode.tekton.dev/cancel-in-progress: "true"
     pipelinesascode.tekton.dev/max-keep-runs: "3"
     pipelinesascode.tekton.dev/on-cel-expression: event == "pull_request" && target_branch
-      == "rhcl-1.3"
+      == "rhcl-1.3" && ( "mcp-gateway-operator/*".pathChanged() || "Containerfile.mcp-gateway-operator".pathChanged()
+      || ".tekton/multi-arch-build-pipeline.yaml".pathChanged() || ".tekton/rhcl-1-3-mcp-gateway-operator-pull-request.yaml".pathChanged()
+      )
   creationTimestamp: null
   labels:
     appstudio.openshift.io/application: rhcl-1-3-mcp-gateway
@@ -60,11 +62,11 @@ spec:
       description: Skip checks against built image
       name: skip-checks
       type: string
-    - default: "false"
+    - default: "true"
       description: Execute the build with network isolation
       name: hermetic
       type: string
-    - default: ""
+    - default: '[{"type": "gomod", "path": "mcp-gateway-operator/"}]'
       description: Build dependencies to be prefetched
       name: prefetch-input
       type: string
