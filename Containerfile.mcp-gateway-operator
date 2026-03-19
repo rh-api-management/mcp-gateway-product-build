@@ -1,5 +1,5 @@
 ################################
-# MCP Operator
+# MCP Gateway Operator
 ################################
 
 FROM registry.redhat.io/ubi9/go-toolset:latest AS builder
@@ -9,22 +9,22 @@ ENV BINARY_NAME="mcp_controller"
 WORKDIR /workspace
 
 # Copy the Go Modules manifests
-COPY mcp-operator/go.mod go.mod
-COPY mcp-operator/go.sum go.sum
+COPY mcp-gateway-operator/go.mod go.mod
+COPY mcp-gateway-operator/go.sum go.sum
 # cache deps before building and copying source so that we don't need to re-download as much
 # and so that source changes don't invalidate our downloaded layer
 RUN go mod download
 
 # Copy the go source
-COPY mcp-operator/cmd/ cmd/
-COPY mcp-operator/internal/ internal/
-COPY mcp-operator/api/ api/
-COPY mcp-operator/LICENSE /licenses/LICENSE
+COPY mcp-gateway-operator/cmd/ cmd/
+COPY mcp-gateway-operator/internal/ internal/
+COPY mcp-gateway-operator/api/ api/
+COPY mcp-gateway-operator/LICENSE /licenses/LICENSE
 
 ARG GITHUB_SHA
 ENV GITHUB_SHA=${GITHUB_SHA:-unknown}
 
-# Build MCP Operator
+# Build MCP Gateway Operator
 RUN CGO_ENABLED=0 GOOS=linux go build \
     -ldflags "-X main.version=${GITHUB_SHA}" \
     -o ${BINARY_NAME} \
@@ -34,13 +34,13 @@ RUN CGO_ENABLED=0 GOOS=linux go build \
 FROM registry.redhat.io/ubi9/ubi-minimal:latest
 
 LABEL version="1.0.0" \
-      com.redhat.component="mcp-operator" \
-      name="rhcl-1/mcp-operator-rhel9" \
+      com.redhat.component="mcp-gateway-operator" \
+      name="rhcl-1/mcp-gateway-operator-rhel9" \
       cpe="cpe:/a:redhat:connectivity_link:1::el9" \
       vendor="Red Hat, Inc." \
       summary="MCP Gateway Kubernetes operator" \
       description="Kubernetes operator for discovering and managing MCP servers via MCPGatewayExtension, MCPServerRegistration, and MCPVirtualServer CRDs." \
-      io.k8s.display-name="MCP Operator" \
+      io.k8s.display-name="MCP Gateway Operator" \
       io.k8s.description="Kubernetes operator for MCP Gateway CRDs" \
       io.openshift.expose-services="" \
       io.openshift.tags="mcp, controller, kubernetes, operator" \
@@ -48,7 +48,7 @@ LABEL version="1.0.0" \
 
 ENV OPERATOR_BINARY_NAME="mcp_controller" \
     USER_UID=1001 \
-    USER_NAME=mcp-operator
+    USER_NAME=mcp-gateway-operator
 
 USER root
 

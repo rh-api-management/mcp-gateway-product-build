@@ -4,20 +4,19 @@ metadata:
   annotations:
     build.appstudio.openshift.io/repo: https://github.com/rh-api-management/mcp-gateway-product-build?rev={{revision}}
     build.appstudio.redhat.com/commit_sha: '{{revision}}'
-    build.appstudio.redhat.com/pull_request_number: '{{pull_request_number}}'
     build.appstudio.redhat.com/target_branch: '{{target_branch}}'
-    pipelinesascode.tekton.dev/cancel-in-progress: "true"
+    pipelinesascode.tekton.dev/cancel-in-progress: "false"
     pipelinesascode.tekton.dev/max-keep-runs: "3"
-    pipelinesascode.tekton.dev/on-cel-expression: event == "pull_request" && target_branch
-      == "rhcl-1.3" && ( "bundle/*".pathChanged() || "Containerfile.bundle".pathChanged()
-      || "image-pullspecs.yaml".pathChanged() || ".tekton/bundle-build-pipeline.yaml".pathChanged()
-      || ".tekton/rhcl-1-3-mcp-operator-bundle-pull-request.yaml".pathChanged() )
+    pipelinesascode.tekton.dev/on-cel-expression: event == "push" && target_branch
+      == "rhcl-1.3" && ( "mcp-gateway-operator/*".pathChanged() || "Containerfile.mcp-gateway-operator".pathChanged()
+      || ".tekton/multi-arch-build-pipeline.yaml".pathChanged() || ".tekton/rhcl-1-3-mcp-gateway-operator-push.yaml".pathChanged()
+      )
   creationTimestamp: null
   labels:
     appstudio.openshift.io/application: rhcl-1-3-mcp-gateway
-    appstudio.openshift.io/component: rhcl-1-3-mcp-operator-bundle
+    appstudio.openshift.io/component: rhcl-1-3-mcp-gateway-operator
     pipelines.appstudio.openshift.io/type: build
-  name: rhcl-1-3-mcp-operator-bundle-on-pull-request
+  name: rhcl-1-3-mcp-gateway-operator-on-push
   namespace: api-management-tenant
 spec:
   params:
@@ -26,11 +25,9 @@ spec:
   - name: revision
     value: '{{revision}}'
   - name: output-image
-    value: quay.io/redhat-user-workloads/api-management-tenant/rhcl-1-3-mcp-operator-bundle:on-pr-{{revision}}
-  - name: image-expires-after
-    value: 5d
+    value: quay.io/redhat-user-workloads/api-management-tenant/rhcl-1-3-mcp-gateway-operator:{{revision}}
   - name: dockerfile
-    value: Containerfile.bundle
+    value: Containerfile.mcp-gateway-operator
   pipelineSpec:
     description: |
       This pipeline is ideal for building container images from a Containerfile while maintaining trust after pipeline customization.
@@ -66,7 +63,7 @@ spec:
       description: Execute the build with network isolation
       name: hermetic
       type: string
-    - default: ''
+    - default: '[{"type": "gomod", "path": "mcp-gateway-operator/"}]'
       description: Build dependencies to be prefetched
       name: prefetch-input
       type: string
@@ -577,7 +574,7 @@ spec:
     - name: netrc
       optional: true
   taskRunTemplate:
-    serviceAccountName: build-pipeline-rhcl-1-3-mcp-operator-bundle
+    serviceAccountName: build-pipeline-rhcl-1-3-mcp-gateway-operator
   workspaces:
   - name: git-auth
     secret:

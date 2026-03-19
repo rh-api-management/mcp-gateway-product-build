@@ -35,21 +35,21 @@ architectures:
 registries:
   dev:
     mcp-gateway: quay.io/redhat-user-workloads/api-management-tenant/rhcl-1-3-mcp-gateway
-    mcp-operator: quay.io/redhat-user-workloads/api-management-tenant/rhcl-1-3-mcp-operator
+    mcp-gateway-operator: quay.io/redhat-user-workloads/api-management-tenant/rhcl-1-3-mcp-gateway-operator
   stage:
     mcp-gateway: registry.stage.redhat.io/rhcl-1/mcp-gateway-rhel9
-    mcp-operator: registry.stage.redhat.io/rhcl-1/mcp-operator-rhel9
+    mcp-gateway-operator: registry.stage.redhat.io/rhcl-1/mcp-gateway-operator-rhel9
   prod:
     mcp-gateway: registry.redhat.io/rhcl-1/mcp-gateway-rhel9
-    mcp-operator: registry.redhat.io/rhcl-1/mcp-operator-rhel9
+    mcp-gateway-operator: registry.redhat.io/rhcl-1/mcp-gateway-operator-rhel9
 
 # upstream image references to replace
 upstream:
   mcp-gateway: ghcr.io/kuadrant/mcp-gateway:latest
-  mcp-operator: ghcr.io/kuadrant/mcp-controller:latest
+  mcp-gateway-operator: ghcr.io/kuadrant/mcp-controller:latest
 
 # source: upstream bundle directory from the submodule
-upstream_bundle: mcp-operator/bundle
+upstream_bundle: mcp-gateway-operator/bundle
 
 # output directories for each variant
 output:

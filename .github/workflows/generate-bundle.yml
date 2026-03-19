@@ -5,14 +5,14 @@ on:
     paths:
       - 'image-pullspecs.yaml'
       - 'bundle-generation/**'
-      - 'mcp-operator/bundle/**'
+      - 'mcp-gateway-operator/bundle/**'
     branches:
       - 'rhcl-*'
   push:
     paths:
       - 'image-pullspecs.yaml'
       - 'bundle-generation/**'
-      - 'mcp-operator/bundle/**'
+      - 'mcp-gateway-operator/bundle/**'
     branches:
       - 'rhcl-*'
   workflow_dispatch: # Allow manual triggering
