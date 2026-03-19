@@ -7,8 +7,8 @@ LABEL operators.operatorframework.io.bundle.package.v1=mcp-gateway
 LABEL operators.operatorframework.io.bundle.channels.v1=preview
 LABEL operators.operatorframework.io.bundle.channel.default.v1=preview
 
-LABEL com.redhat.component="mcp-operator-bundle-container" \
-      name="rhcl-1/mcp-operator-bundle" \
+LABEL com.redhat.component="mcp-gateway-operator-bundle-container" \
+      name="rhcl-1/mcp-gateway-operator-bundle" \
       cpe="cpe:/a:redhat:connectivity_link:1::el9" \
       vendor="Red Hat, Inc." \
       summary="MCP Gateway OLM bundle (dev)" \

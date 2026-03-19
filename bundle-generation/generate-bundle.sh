@@ -28,7 +28,7 @@ DOWNSTREAM_BUNDLE="${SCRIPT_DIR}/bundle"
 
 if [ ! -d "$UPSTREAM_BUNDLE" ]; then
     echo "error: upstream bundle not found at ${UPSTREAM_BUNDLE}"
-    echo "make sure the mcp-operator submodule is initialized: git submodule update --init"
+    echo "make sure the mcp-gateway-operator submodule is initialized: git submodule update --init"
     exit 1
 fi
 
@@ -54,14 +54,14 @@ PROXY="$(yq '.features.proxy_aware' "$CONFIG")"
 
 # read image pullspecs
 MCP_GATEWAY_IMAGE="$(yq '.images.mcp_gateway' "$IMAGE_PULLSPECS")"
-MCP_OPERATOR_IMAGE="$(yq '.images.mcp_operator' "$IMAGE_PULLSPECS")"
+MCP_OPERATOR_IMAGE="$(yq '.images.mcp_gateway_operator' "$IMAGE_PULLSPECS")"
 
 echo "========================================"
 echo "generating bundles for ${CSV_NAME} (v${CSV_VERSION})"
 echo ""
 echo "image pullspecs:"
 echo "  mcp_gateway:  ${MCP_GATEWAY_IMAGE}"
-echo "  mcp_operator: ${MCP_OPERATOR_IMAGE}"
+echo "  mcp_gateway_operator: ${MCP_OPERATOR_IMAGE}"
 echo "========================================"
 echo ""
 
@@ -146,9 +146,9 @@ for env in dev stage prod; do
 
     # --- image references ---
     gateway_image="$(get_image mcp-gateway "$env")"
-    operator_image="$(get_image mcp-operator "$env")"
+    operator_image="$(get_image mcp-gateway-operator "$env")"
 
-    for image_key in mcp-gateway mcp-operator; do
+    for image_key in mcp-gateway mcp-gateway-operator; do
         upstream_ref="$(yq ".upstream.\"${image_key}\"" "$CONFIG")"
         if [ "$image_key" = "mcp-gateway" ]; then
             target_ref="$gateway_image"
