@@ -2,11 +2,11 @@ apiVersion: operators.coreos.com/v1alpha1
 kind: ClusterServiceVersion
 metadata:
   annotations:
-    alm-examples: "[\n  {\n    \"apiVersion\": \"mcp.kagenti.com/v1alpha1\",\n    \"kind\": \"MCPGatewayExtension\",\n    \"metadata\": {\n      \"name\": \"mcp-gateway-extension\",\n      \"namespace\": \"mcp-system\"\n    },\n    \"spec\": {\n      \"targetRef\": {\n        \"group\": \"gateway.networking.k8s.io\",\n        \"kind\": \"Gateway\",\n        \"name\": \"mcp-gateway\",\n        \"namespace\": \"gateway-system\",\n        \"sectionName\": \"mcp\"\n      }\n    }\n  },\n  {\n    \"apiVersion\": \"mcp.kagenti.com/v1alpha1\",\n    \"kind\": \"MCPServerRegistration\",\n    \"metadata\": {\n      \"name\": \"example-server\",\n      \"namespace\": \"mcp-test\"\n    },\n    \"spec\": {\n      \"toolPrefix\": \"example_\",\n      \"targetRef\": {\n        \"group\": \"gateway.networking.k8s.io\",\n        \"kind\": \"HTTPRoute\",\n        \"name\": \"example-route\"\n      }\n    }\n  },\n  {\n    \"apiVersion\": \"mcp.kagenti.com/v1alpha1\",\n    \"kind\": \"MCPVirtualServer\",\n    \"metadata\": {\n      \"name\": \"example-vs\",\n      \"namespace\": \"default\"\n    },\n    \"spec\": {\n      \"description\": \"example virtual server\",\n      \"tools\": [\n        \"server1_tool1\",\n        \"server2_tool2\"\n      ]\n    }\n  }\n]"
+    alm-examples: "[\n  {\n    \"apiVersion\": \"mcp.kuadrant.io/v1alpha1\",\n    \"kind\": \"MCPGatewayExtension\",\n    \"metadata\": {\n      \"name\": \"mcp-gateway-extension\",\n      \"namespace\": \"mcp-system\"\n    },\n    \"spec\": {\n      \"targetRef\": {\n        \"group\": \"gateway.networking.k8s.io\",\n        \"kind\": \"Gateway\",\n        \"name\": \"mcp-gateway\",\n        \"namespace\": \"gateway-system\",\n        \"sectionName\": \"mcp\"\n      }\n    }\n  },\n  {\n    \"apiVersion\": \"mcp.kuadrant.io/v1alpha1\",\n    \"kind\": \"MCPServerRegistration\",\n    \"metadata\": {\n      \"name\": \"example-server\",\n      \"namespace\": \"mcp-test\"\n    },\n    \"spec\": {\n      \"toolPrefix\": \"example_\",\n      \"targetRef\": {\n        \"group\": \"gateway.networking.k8s.io\",\n        \"kind\": \"HTTPRoute\",\n        \"name\": \"example-route\"\n      }\n    }\n  },\n  {\n    \"apiVersion\": \"mcp.kuadrant.io/v1alpha1\",\n    \"kind\": \"MCPVirtualServer\",\n    \"metadata\": {\n      \"name\": \"example-vs\",\n      \"namespace\": \"default\"\n    },\n    \"spec\": {\n      \"description\": \"example virtual server\",\n      \"tools\": [\n        \"server1_tool1\",\n        \"server2_tool2\"\n      ]\n    }\n  }\n]"
     capabilities: Basic Install
     categories: Integration & Delivery
     containerImage: registry.stage.redhat.io/rhcl-1/mcp-gateway-operator-rhel9@sha256:bca79db046fff7e468c398c50ef1344c12984853613c17b5039906ae3f1bf0b5
-    createdAt: "2026-03-10T15:09:00Z"
+    createdAt: "2026-03-24T10:49:03Z"
     description: An Envoy-based gateway for Model Context Protocol (MCP) servers
     operators.operatorframework.io/builder: operator-sdk-v1.38.0
     operators.operatorframework.io/project_layout: go.kubebuilder.io/v4
@@ -29,17 +29,17 @@ spec:
       - description: Extends a Gateway API Gateway to handle MCP traffic by deploying a broker-router and configuring Envoy.
         displayName: MCP Gateway Extension
         kind: MCPGatewayExtension
-        name: mcpgatewayextensions.mcp.kagenti.com
+        name: mcpgatewayextensions.mcp.kuadrant.io
         version: v1alpha1
       - description: Registers an upstream MCP server for tool federation through the gateway.
         displayName: MCP Server Registration
         kind: MCPServerRegistration
-        name: mcpserverregistrations.mcp.kagenti.com
+        name: mcpserverregistrations.mcp.kuadrant.io
         version: v1alpha1
       - description: Defines a virtual MCP server that exposes a curated subset of tools from registered servers.
         displayName: MCP Virtual Server
         kind: MCPVirtualServer
-        name: mcpvirtualservers.mcp.kagenti.com
+        name: mcpvirtualservers.mcp.kuadrant.io
         version: v1alpha1
   description: |-
     MCP Gateway enables you to federate, secure, and route Model Context Protocol (MCP) traffic through an Envoy-based gateway.
@@ -51,14 +51,6 @@ spec:
     spec:
       clusterPermissions:
         - rules:
-            - apiGroups:
-                - ""
-              resources:
-                - endpoints
-              verbs:
-                - get
-                - list
-                - watch
             - apiGroups:
                 - ""
               resources:
@@ -76,7 +68,6 @@ spec:
                 - delete
                 - get
                 - list
-                - patch
                 - update
                 - watch
             - apiGroups:
@@ -88,16 +79,7 @@ spec:
                 - delete
                 - get
                 - list
-                - patch
                 - update
-                - watch
-            - apiGroups:
-                - discovery.k8s.io
-              resources:
-                - endpointslices
-              verbs:
-                - get
-                - list
                 - watch
             - apiGroups:
                 - gateway.networking.k8s.io
@@ -111,10 +93,8 @@ spec:
                 - gateway.networking.k8s.io
               resources:
                 - gateways/status
-                - httproutes/status
               verbs:
                 - get
-                - patch
                 - update
             - apiGroups:
                 - gateway.networking.k8s.io
@@ -125,9 +105,14 @@ spec:
                 - delete
                 - get
                 - list
-                - patch
                 - update
                 - watch
+            - apiGroups:
+                - gateway.networking.k8s.io
+              resources:
+                - httproutes/status
+              verbs:
+                - update
             - apiGroups:
                 - gateway.networking.k8s.io
               resources:
@@ -136,35 +121,31 @@ spec:
                 - list
                 - watch
             - apiGroups:
-                - mcp.kagenti.com
+                - mcp.kuadrant.io
               resources:
                 - mcpgatewayextensions
                 - mcpserverregistrations
                 - mcpvirtualservers
               verbs:
-                - create
-                - delete
                 - get
                 - list
-                - patch
                 - update
                 - watch
             - apiGroups:
-                - mcp.kagenti.com
+                - mcp.kuadrant.io
               resources:
                 - mcpgatewayextensions/finalizers
                 - mcpvirtualservers/finalizers
               verbs:
                 - update
             - apiGroups:
-                - mcp.kagenti.com
+                - mcp.kuadrant.io
               resources:
                 - mcpgatewayextensions/status
                 - mcpserverregistrations/status
                 - mcpvirtualservers/status
               verbs:
                 - get
-                - patch
                 - update
             - apiGroups:
                 - networking.istio.io
@@ -175,7 +156,6 @@ spec:
                 - delete
                 - get
                 - list
-                - patch
                 - update
                 - watch
           serviceAccountName: mcp-controller
@@ -203,7 +183,7 @@ spec:
                       - --log-level=0
                     env:
                       - name: RELATED_IMAGE_ROUTER_BROKER
-                        value: registry.stage.redhat.io/rhcl-1/mcp-gateway-rhel9@sha256:d7af6f0adcb40745616dc4fe6b3b48be2fb352e8ec20b8db7f93d231ef7ebfe3
+                        value: registry.stage.redhat.io/rhcl-1/mcp-gateway-rhel9@sha256:262e0bcc307db447499bb78ab6189a935e15dffa3efd171d0f216fbb31b5cce2
                     image: registry.stage.redhat.io/rhcl-1/mcp-gateway-operator-rhel9@sha256:bca79db046fff7e468c398c50ef1344c12984853613c17b5039906ae3f1bf0b5
                     imagePullPolicy: IfNotPresent
                     livenessProbe:
@@ -264,7 +244,7 @@ spec:
     name: Kuadrant
     url: https://kuadrant.io
   relatedImages:
-    - image: registry.stage.redhat.io/rhcl-1/mcp-gateway-rhel9@sha256:d7af6f0adcb40745616dc4fe6b3b48be2fb352e8ec20b8db7f93d231ef7ebfe3
+    - image: registry.stage.redhat.io/rhcl-1/mcp-gateway-rhel9@sha256:262e0bcc307db447499bb78ab6189a935e15dffa3efd171d0f216fbb31b5cce2
       name: router-broker
     - image: registry.stage.redhat.io/rhcl-1/mcp-gateway-operator-rhel9@sha256:bca79db046fff7e468c398c50ef1344c12984853613c17b5039906ae3f1bf0b5
       name: controller
