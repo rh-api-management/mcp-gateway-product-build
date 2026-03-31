@@ -203,7 +203,7 @@ spec:
                       - --log-level=0
                     env:
                       - name: RELATED_IMAGE_ROUTER_BROKER
-                        value: quay.io/redhat-user-workloads/api-management-tenant/rhcl-1-3-mcp-gateway@sha256:d7af6f0adcb40745616dc4fe6b3b48be2fb352e8ec20b8db7f93d231ef7ebfe3
+                        value: quay.io/redhat-user-workloads/api-management-tenant/rhcl-1-3-mcp-gateway@sha256:262e0bcc307db447499bb78ab6189a935e15dffa3efd171d0f216fbb31b5cce2
                     image: quay.io/redhat-user-workloads/api-management-tenant/rhcl-1-3-mcp-gateway-operator@sha256:bca79db046fff7e468c398c50ef1344c12984853613c17b5039906ae3f1bf0b5
                     imagePullPolicy: IfNotPresent
                     livenessProbe:
@@ -264,7 +264,7 @@ spec:
     name: Kuadrant
     url: https://kuadrant.io
   relatedImages:
-    - image: quay.io/redhat-user-workloads/api-management-tenant/rhcl-1-3-mcp-gateway@sha256:d7af6f0adcb40745616dc4fe6b3b48be2fb352e8ec20b8db7f93d231ef7ebfe3
+    - image: quay.io/redhat-user-workloads/api-management-tenant/rhcl-1-3-mcp-gateway@sha256:262e0bcc307db447499bb78ab6189a935e15dffa3efd171d0f216fbb31b5cce2
       name: router-broker
     - image: quay.io/redhat-user-workloads/api-management-tenant/rhcl-1-3-mcp-gateway-operator@sha256:bca79db046fff7e468c398c50ef1344c12984853613c17b5039906ae3f1bf0b5
       name: controller
