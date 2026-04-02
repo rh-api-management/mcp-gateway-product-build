@@ -1,8 +1,8 @@
 [submodule "mcp-gateway"]
 	path = mcp-gateway
 	url = https://github.com/kuadrant/mcp-gateway
-	branch = main
+	branch = release-0.5.1
 [submodule "mcp-gateway-operator"]
 	path = mcp-gateway-operator
 	url = https://github.com/kuadrant/mcp-gateway
-	branch = main
+	branch = release-0.5.1
