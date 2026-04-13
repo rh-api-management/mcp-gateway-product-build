@@ -4,9 +4,9 @@ metadata:
   annotations:
     controller-gen.kubebuilder.io/version: v0.20.0
   creationTimestamp: null
-  name: mcpserverregistrations.mcp.kagenti.com
+  name: mcpserverregistrations.mcp.kuadrant.io
 spec:
-  group: mcp.kagenti.com
+  group: mcp.kuadrant.io
   names:
     kind: MCPServerRegistration
     listKind: MCPServerRegistrationList
@@ -69,24 +69,23 @@ spec:
           metadata:
             type: object
           spec:
-            description: |-
-              MCPServerRegistrationSpec defines the desired state of MCPServerRegistration.
-              It specifies which HTTPRoutes point to MCP servers and how their tools should be federated.
+            description: spec defines the desired state of MCPServerRegistration.
             properties:
               credentialRef:
                 description: |-
-                  CredentialRef references a Secret containing authentication credentials for the MCP server.
+                  credentialRef references a Secret containing authentication credentials for the MCP server.
                   The Secret should contain a key with the authentication token or credentials.
                   The controller will aggregate these credentials and make them available to the broker via environment variables following the pattern: KAGENTI_{MCP_NAME}_CRED
                 properties:
                   key:
                     default: token
                     description: |-
-                      Key is the key within the Secret that contains the credential value.
+                      key is the key within the Secret that contains the credential value.
                       If not specified, defaults to "token".
                     type: string
                   name:
-                    description: Name is the name of the Secret resource.
+                    description: name is the name of the Secret resource.
+                    minLength: 1
                     type: string
                 required:
                 - name
@@ -94,44 +93,43 @@ spec:
               path:
                 default: /mcp
                 description: |-
-                  Path specifies the URL path where the MCP server endpoint is exposed.
+                  path specifies the URL path where the MCP server endpoint is exposed.
                   If not specified, defaults to "/mcp".
                   This allows connecting to MCP servers that use custom paths like "/v1/mcp" or "/api/mcp".
                 type: string
               targetRef:
                 description: |-
-                  TargetRef specifies an HTTPRoute that points to a backend MCP server.
+                  targetRef specifies an HTTPRoute that points to a backend MCP server.
                   The referenced HTTPRoute should have a backend service that implements the MCP protocol.
                   The controller will discover the backend service from this HTTPRoute and configure
                   the broker to federate tools from that MCP server.
                 properties:
                   group:
                     default: gateway.networking.k8s.io
-                    description: Group is the group of the target resource.
+                    description: group is the group of the target resource.
                     enum:
                     - gateway.networking.k8s.io
                     type: string
                   kind:
                     default: HTTPRoute
-                    description: Kind is the kind of the target resource.
+                    description: kind is the kind of the target resource.
                     enum:
                     - HTTPRoute
                     type: string
                   name:
-                    description: Name is the name of the target resource.
+                    description: name is the name of the target resource.
+                    minLength: 1
                     type: string
                   namespace:
-                    description: Namespace of the target resource (optional, defaults
-                      to same namespace)
+                    description: namespace of the target resource (optional, defaults
+                      to same namespace).
                     type: string
                 required:
-                - group
-                - kind
                 - name
                 type: object
               toolPrefix:
                 description: |-
-                  ToolPrefix is the prefix to add to all federated tools from referenced servers.
+                  toolPrefix is the prefix to add to all federated tools from referenced servers.
                   This helps avoid naming conflicts when aggregating tools from multiple sources.
                   For example, if two servers both provide a 'search' tool, prefixes like 'server1_' and 'server2_' ensure they can coexist as 'server1_search' and 'server2_search'.
                 type: string
@@ -142,13 +140,11 @@ spec:
             - targetRef
             type: object
           status:
-            description: |-
-              MCPServerRegistrationStatus represents the observed state of the MCPServerRegistration resource.
-              It contains conditions that indicate whether the referenced servers have been successfully discovered and are ready for use.
+            description: status defines the observed state of MCPServerRegistration.
             properties:
               conditions:
                 description: |-
-                  Conditions represent the latest available observations of the MCPServerRegistration's state.
+                  conditions represent the latest available observations of the MCPServerRegistration's state.
                   Common conditions include 'Ready' to indicate if all referenced servers are accessible.
                 items:
                   description: Condition contains details for one aspect of the current
@@ -205,9 +201,13 @@ spec:
                   - type
                   type: object
                 type: array
+                x-kubernetes-list-map-keys:
+                - type
+                x-kubernetes-list-type: map
               discoveredTools:
-                description: DiscoveredTools is the number of tools discovered from
-                  this MCPServerRegistration
+                description: discoveredTools is the number of tools discovered from
+                  this MCPServerRegistration.
+                format: int32
                 type: integer
             type: object
         type: object

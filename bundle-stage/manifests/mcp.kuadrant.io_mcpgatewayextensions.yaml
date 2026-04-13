@@ -4,9 +4,9 @@ metadata:
   annotations:
     controller-gen.kubebuilder.io/version: v0.20.0
   creationTimestamp: null
-  name: mcpgatewayextensions.mcp.kagenti.com
+  name: mcpgatewayextensions.mcp.kuadrant.io
 spec:
-  group: mcp.kagenti.com
+  group: mcp.kuadrant.io
   names:
     kind: MCPGatewayExtension
     listKind: MCPGatewayExtensionList
@@ -59,7 +59,7 @@ spec:
             properties:
               backendPingIntervalSeconds:
                 default: 60
-                description: BackendPingIntervalSeconds specifies how often the broker
+                description: backendPingIntervalSeconds specifies how often the broker
                   pings upstream MCP servers.
                 format: int32
                 maximum: 7200
@@ -68,7 +68,7 @@ spec:
               httpRouteManagement:
                 default: Enabled
                 description: |-
-                  HTTPRouteManagement controls whether the operator manages the gateway HTTPRoute.
+                  httpRouteManagement controls whether the operator manages the gateway HTTPRoute.
                   Enabled: creates and manages the HTTPRoute (default).
                   Disabled: does not create an HTTPRoute.
                 enum:
@@ -77,41 +77,58 @@ spec:
                 type: string
               privateHost:
                 description: |-
-                  PrivateHost overrides the internal host used for hair-pinning requests
+                  privateHost overrides the internal host used for hair-pinning requests
                   back through the gateway. Defaults to <gateway>-istio.<ns>.svc.cluster.local:<port>.
                 type: string
               publicHost:
                 description: |-
-                  PublicHost overrides the public host derived from the listener hostname.
+                  publicHost overrides the public host derived from the listener hostname.
                   Use when the listener has a wildcard and you need a specific host.
                 type: string
+              sessionStore:
+                description: |-
+                  sessionStore references a secret for redis-based session storage.
+                  The secret must exist in the MCPGatewayExtension namespace and contain a CACHE_CONNECTION_STRING key.
+                  The value is injected as CACHE_CONNECTION_STRING into the broker-router deployment.
+                  When not set, in-memory session storage is used.
+                properties:
+                  secretName:
+                    description: |-
+                      secretName is the name of the secret containing the CACHE_CONNECTION_STRING key.
+                      The value should be a redis connection string: redis://<user>:<pass>@<host>:<port>/<db>
+                    minLength: 1
+                    type: string
+                required:
+                - secretName
+                type: object
               targetRef:
                 description: |-
-                  TargetRef specifies the Gateway to extend with MCP protocol support.
+                  targetRef specifies the Gateway to extend with MCP protocol support.
                   The controller will create an EnvoyFilter targeting this Gateway's Envoy proxy.
                 properties:
                   group:
                     default: gateway.networking.k8s.io
-                    description: Group is the group of the target resource.
+                    description: group is the group of the target resource.
                     enum:
                     - gateway.networking.k8s.io
                     type: string
                   kind:
                     default: Gateway
-                    description: Kind is the kind of the target resource.
+                    description: kind is the kind of the target resource.
                     enum:
                     - Gateway
                     type: string
                   name:
-                    description: Name is the name of the target resource.
+                    description: name is the name of the target resource.
+                    minLength: 1
                     type: string
                   namespace:
-                    description: Namespace of the target resource (optional, defaults
+                    description: namespace of the target resource (optional, defaults
                       to same namespace)
                     type: string
                   sectionName:
                     description: |-
-                      SectionName is the name of a listener on the target Gateway. The controller will
+                      sectionName is the name of a listener on the target Gateway. The controller will
                       read the listener's port and hostname to configure the MCP Gateway instance.
                       This allows multiple MCPGatewayExtensions to target different listeners on the
                       same Gateway, each with their own MCP Gateway instance.
@@ -119,20 +136,18 @@ spec:
                     minLength: 1
                     type: string
                 required:
-                - group
-                - kind
                 - name
                 - sectionName
                 type: object
               trustedHeadersKey:
                 description: |-
-                  TrustedHeadersKey configures trusted-header key pair for JWT-based tool filtering.
+                  trustedHeadersKey configures trusted-header key pair for JWT-based tool filtering.
                   When set, the public key secret is wired into the broker deployment.
                 properties:
                   generate:
                     default: Disabled
                     description: |-
-                      Generate controls whether the operator generates an ECDSA P-256 key pair.
+                      generate controls whether the operator generates an ECDSA P-256 key pair.
                       Enabled: creates <secretName> (public key) and <secretName>-private (private key)
                       in the MCPGatewayExtension namespace with owner references.
                       Disabled: the secret must already exist (default).
@@ -144,7 +159,7 @@ spec:
                     type: string
                   secretName:
                     description: |-
-                      SecretName is the name of the secret containing the public key used by the broker
+                      secretName is the name of the secret containing the public key used by the broker
                       to verify trusted-header JWTs. The secret must have a data entry with key "key"
                       containing the PEM-encoded public key.
                       When Generate is Enabled, the operator creates this secret.
@@ -162,7 +177,7 @@ spec:
             properties:
               conditions:
                 description: |-
-                  Conditions represent the current state of the MCPGatewayExtension.
+                  conditions represent the current state of the MCPGatewayExtension.
                   The Ready condition indicates whether the broker-router deployment is running
                   and the EnvoyFilter has been successfully applied to the target Gateway.
                 items:

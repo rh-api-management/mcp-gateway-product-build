@@ -4,9 +4,9 @@ metadata:
   annotations:
     controller-gen.kubebuilder.io/version: v0.20.0
   creationTimestamp: null
-  name: mcpvirtualservers.mcp.kagenti.com
+  name: mcpvirtualservers.mcp.kuadrant.io
 spec:
-  group: mcp.kagenti.com
+  group: mcp.kuadrant.io
   names:
     kind: MCPVirtualServer
     listKind: MCPVirtualServerList
@@ -49,22 +49,21 @@ spec:
           metadata:
             type: object
           spec:
-            description: |-
-              MCPVirtualServerSpec defines the desired state of MCPVirtualServer.
-              It specifies which tools should be exposed by this virtual server.
+            description: spec defines the desired state of MCPVirtualServer.
             properties:
               description:
-                description: Description provides a human-readable description of
+                description: description provides a human-readable description of
                   this virtual server's purpose.
                 type: string
               tools:
                 description: |-
-                  Tools specifies the list of tool names to expose through this virtual server.
+                  tools specifies the list of tool names to expose through this virtual server.
                   These tools must be available from the underlying MCP servers configured in the system.
                 items:
                   type: string
                 minItems: 1
                 type: array
+                x-kubernetes-list-type: atomic
             required:
             - tools
             type: object
