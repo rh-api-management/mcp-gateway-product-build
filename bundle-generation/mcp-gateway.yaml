@@ -48,6 +48,13 @@ upstream:
   mcp-gateway: ghcr.io/kuadrant/mcp-gateway:latest
   mcp-gateway-operator: ghcr.io/kuadrant/mcp-controller:latest
 
+# OLM dependencies
+dependencies:
+  - type: olm.package
+    value:
+      packageName: rhcl-operator
+      version: ">=1.3.2"
+
 # source: upstream bundle directory from the submodule
 upstream_bundle: mcp-gateway-operator/bundle
 
