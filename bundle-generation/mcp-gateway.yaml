@@ -4,8 +4,8 @@
 
 # CSV metadata
 csv:
-  name: mcp-gateway.v1.0.0
-  version: "1.0.0"
+  name: mcp-gateway.v0.6.0
+  version: "0.6.0"
   displayName: MCP Gateway
   description: "MCP Gateway enables you to federate, secure, and route Model Context Protocol (MCP) traffic through an Envoy-based gateway."
   icon:
