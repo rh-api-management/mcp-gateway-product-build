@@ -107,6 +107,12 @@ for env in dev stage prod; do
     cp "${DOWNSTREAM_BUNDLE}"/metadata/*.yaml "${output_dir}/metadata/"
     echo "  metadata: using downstream annotations"
 
+    # generate dependencies.yaml from config
+    if yq -e '.dependencies' "$CONFIG" &>/dev/null; then
+        yq '{"dependencies": .dependencies}' "$CONFIG" > "${output_dir}/metadata/dependencies.yaml"
+        echo "  dependencies: generated"
+    fi
+
     csv="${output_dir}/manifests/mcp-gateway.clusterserviceversion.yaml"
 
     # --- CSV metadata ---
