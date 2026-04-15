@@ -33,9 +33,9 @@ RUN CGO_ENABLED=0 GOOS=linux go build \
 
 FROM registry.redhat.io/ubi9/ubi-minimal:latest
 
-LABEL version="1.0.0" \
+LABEL version="0.6.0" \
       com.redhat.component="mcp-gateway-operator" \
-      name="rhcl-1/mcp-gateway-operator-rhel9" \
+      name="rhcl-tech-preview/mcp-gateway-operator-rhel9" \
       cpe="cpe:/a:redhat:connectivity_link:1::el9" \
       vendor="Red Hat, Inc." \
       summary="MCP Gateway Kubernetes operator" \
@@ -44,6 +44,9 @@ LABEL version="1.0.0" \
       io.k8s.description="Kubernetes operator for MCP Gateway CRDs" \
       io.openshift.expose-services="" \
       io.openshift.tags="mcp, controller, kubernetes, operator" \
+      url="redhat.com" \
+      distribution-scope="public" \
+      release="0.6.0" \
       vendor="Red Hat, Inc."
 
 ENV OPERATOR_BINARY_NAME="mcp_controller" \
