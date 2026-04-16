@@ -48,10 +48,10 @@ registries:
     mcp-gateway-operator: quay.io/redhat-user-workloads/api-management-tenant/rhcl-1-3-mcp-gateway-operator
   stage:
     mcp-gateway: registry.stage.redhat.io/rhcl-1/mcp-gateway-rhel9
-    mcp-gateway-operator: registry.stage.redhat.io/rhcl-1/mcp-gateway-operator-rhel9
+    mcp-gateway-operator: registry.stage.redhat.io/rhcl-1/mcp-gateway-rhel9-operator
   prod:
     mcp-gateway: registry.redhat.io/rhcl-1/mcp-gateway-rhel9
-    mcp-gateway-operator: registry.redhat.io/rhcl-1/mcp-gateway-operator-rhel9
+    mcp-gateway-operator: registry.redhat.io/rhcl-1/mcp-gateway-rhel9-operator
 
 # OLM package dependencies
 dependencies:
