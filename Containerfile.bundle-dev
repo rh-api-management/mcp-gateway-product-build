@@ -7,14 +7,21 @@ LABEL operators.operatorframework.io.bundle.package.v1=mcp-gateway
 LABEL operators.operatorframework.io.bundle.channels.v1=preview
 LABEL operators.operatorframework.io.bundle.channel.default.v1=preview
 
-LABEL com.redhat.component="mcp-gateway-operator-bundle-container" \
-      name="rhcl-1/mcp-gateway-operator-bundle" \
+LABEL version="0.6.0" \
+      summary="MCP Gateway enables you to federate, secure, and route Model Context Protocol (MCP) traffic through an Envoy-based gateway." \
+      name="rhcl-tech-preview/rhcl-operator-bundle" \
       cpe="cpe:/a:redhat:connectivity_link:1::el9" \
-      vendor="Red Hat, Inc." \
-      summary="MCP Gateway OLM bundle (dev)" \
-      description="OLM bundle image containing ClusterServiceVersion and CRDs for MCP Gateway operator (dev)" \
-      io.k8s.display-name="MCP Gateway Bundle (dev)" \
-      io.openshift.tags="mcp, operator, bundle"
+      description="MCP Gateway enables you to federate, secure, and route Model Context Protocol (MCP) traffic through an Envoy-based gateway." \
+      io.k8s.display-name="MCP Gateway Operator Bundle" \
+      io.k8s.description="MCP Gateway Operator Bundle" \
+      io.openshift.expose-services="" \
+      io.openshift.tags="api, mcp, gateway" \
+      url="redhat.com" \
+      distribution-scope="public" \
+      release="1.3.1" \
+      url="" \
+      com.redhat.component="MCP Gateway Operator Bundle" \
+      vendor="Red Hat, Inc."
 
 COPY bundle-dev/manifests /manifests/
 COPY bundle-dev/metadata /metadata/
