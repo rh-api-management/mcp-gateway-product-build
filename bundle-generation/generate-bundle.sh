@@ -154,17 +154,14 @@ for env in dev stage prod; do
     gateway_image="$(get_image mcp-gateway "$env")"
     operator_image="$(get_image mcp-gateway-operator "$env")"
 
-    for image_key in mcp-gateway mcp-gateway-operator; do
-        upstream_ref="$(yq ".upstream.\"${image_key}\"" "$CONFIG")"
-        if [ "$image_key" = "mcp-gateway" ]; then
-            target_ref="$gateway_image"
-        else
-            target_ref="$operator_image"
-        fi
+    echo "  mcp-gateway: ${gateway_image}"
+    echo "  mcp-gateway-operator: ${operator_image}"
 
-        echo "  ${image_key}: ${upstream_ref} -> ${target_ref}"
-        sed -i'' -e "s|${upstream_ref}|${target_ref}|g" "$csv"
-    done
+    # update operator container image in deployment
+    yq -i '(.spec.install.spec.deployments[] | select(.name == "mcp-gateway-controller") | .spec.template.spec.containers[] | select(.name == "mcp-controller") | .image) = "'"${operator_image}"'"' "$csv"
+
+    # update RELATED_IMAGE_ROUTER_BROKER env var
+    yq -i '(.spec.install.spec.deployments[] | select(.name == "mcp-gateway-controller") | .spec.template.spec.containers[] | select(.name == "mcp-controller") | .env[] | select(.name == "RELATED_IMAGE_ROUTER_BROKER") | .value) = "'"${gateway_image}"'"' "$csv"
 
     # update containerImage annotation
     yq -i ".metadata.annotations.containerImage = \"${operator_image}\"" "$csv"

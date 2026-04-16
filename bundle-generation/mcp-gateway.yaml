@@ -43,11 +43,6 @@ registries:
     mcp-gateway: registry.redhat.io/rhcl-1/mcp-gateway-rhel9
     mcp-gateway-operator: registry.redhat.io/rhcl-1/mcp-gateway-operator-rhel9
 
-# upstream image references to replace
-upstream:
-  mcp-gateway: ghcr.io/kuadrant/mcp-gateway:latest
-  mcp-gateway-operator: ghcr.io/kuadrant/mcp-controller:latest
-
 # OLM dependencies
 dependencies:
   - type: olm.package
