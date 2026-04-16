@@ -1,184 +1,203 @@
 #!/usr/bin/env bash
+#
+# Generate MCP Gateway bundle variants using yq
+#
+# This script takes the upstream MCP Gateway operator bundle and transforms it
+# into downstream bundles for dev, stage, and prod environments.
+#
+
 set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-REPO_ROOT="$(cd "${SCRIPT_DIR}/.." && pwd)"
+PROJECT_ROOT="${SCRIPT_DIR}/.."
 CONFIG="${SCRIPT_DIR}/mcp-gateway.yaml"
-IMAGE_PULLSPECS="${REPO_ROOT}/image-pullspecs.yaml"
+IMAGE_PULLSPECS="${PROJECT_ROOT}/image-pullspecs.yaml"
+ANNOTATIONS_FILE="${SCRIPT_DIR}/bundle/metadata/annotations.yaml"
 
-# check for yq
-if ! command -v yq &>/dev/null; then
-    echo "error: yq is required. install it from https://github.com/mikefarah/yq"
+# Check dependencies
+if ! command -v yq &> /dev/null; then
+    echo "Error: yq is not installed"
+    echo "Install: https://github.com/mikefarah/yq#install"
     exit 1
 fi
 
-# validate config exists
-if [ ! -f "$CONFIG" ]; then
-    echo "error: config not found at ${CONFIG}"
+# Verify config files exist
+if [[ ! -f "$CONFIG" ]]; then
+    echo "Error: config not found at $CONFIG"
     exit 1
 fi
 
-if [ ! -f "$IMAGE_PULLSPECS" ]; then
-    echo "error: image pullspecs not found at ${IMAGE_PULLSPECS}"
+if [[ ! -f "$IMAGE_PULLSPECS" ]]; then
+    echo "Error: Image pullspecs not found at $IMAGE_PULLSPECS"
     exit 1
 fi
 
-UPSTREAM_BUNDLE="${REPO_ROOT}/$(yq '.upstream_bundle' "$CONFIG")"
-DOWNSTREAM_BUNDLE="${SCRIPT_DIR}/bundle"
+UPSTREAM_BUNDLE="${PROJECT_ROOT}/$(yq '.upstream_bundle' "$CONFIG")"
 
-if [ ! -d "$UPSTREAM_BUNDLE" ]; then
-    echo "error: upstream bundle not found at ${UPSTREAM_BUNDLE}"
-    echo "make sure the mcp-gateway-operator submodule is initialized: git submodule update --init"
+if [[ ! -d "$UPSTREAM_BUNDLE" ]]; then
+    echo "Error: upstream bundle not found at ${UPSTREAM_BUNDLE}"
+    echo "Make sure the mcp-gateway-operator submodule is initialized: git submodule update --init"
     exit 1
 fi
-
-# load CSV metadata from config
-CSV_NAME="$(yq '.csv.name' "$CONFIG")"
-CSV_VERSION="$(yq '.csv.version' "$CONFIG")"
-CSV_DISPLAY_NAME="$(yq '.csv.displayName' "$CONFIG")"
-CSV_DESCRIPTION="$(yq '.csv.description' "$CONFIG")"
-CHANNEL="$(yq '.channel' "$CONFIG")"
-
-# load icon
-ICON_BASE64="$(yq '.csv.icon[0].base64data' "$CONFIG")"
-ICON_MEDIATYPE="$(yq '.csv.icon[0].mediatype' "$CONFIG")"
-
-# load links
-DOCS_URL="$(yq '.links.documentation' "$CONFIG")"
-REPO_URL="$(yq '.links.repository' "$CONFIG")"
-
-# load features
-DISCONNECTED="$(yq '.features.disconnected' "$CONFIG")"
-FIPS="$(yq '.features.fips_compliant' "$CONFIG")"
-PROXY="$(yq '.features.proxy_aware' "$CONFIG")"
-
-# read image pullspecs
-MCP_GATEWAY_IMAGE="$(yq '.images.mcp_gateway' "$IMAGE_PULLSPECS")"
-MCP_OPERATOR_IMAGE="$(yq '.images.mcp_gateway_operator' "$IMAGE_PULLSPECS")"
 
 echo "========================================"
-echo "generating bundles for ${CSV_NAME} (v${CSV_VERSION})"
-echo ""
-echo "image pullspecs:"
-echo "  mcp_gateway:  ${MCP_GATEWAY_IMAGE}"
-echo "  mcp_gateway_operator: ${MCP_OPERATOR_IMAGE}"
+echo "Loading configuration from:"
+echo "  Config:      $CONFIG"
+echo "  Pullspecs:   $IMAGE_PULLSPECS"
 echo "========================================"
-echo ""
 
-# extract SHAs from the images (if digest-pinned)
+# Read image pullspecs
+MCP_GATEWAY_IMAGE=$(yq '.images.mcp_gateway' "$IMAGE_PULLSPECS")
+MCP_OPERATOR_IMAGE=$(yq '.images.mcp_gateway_operator' "$IMAGE_PULLSPECS")
+
+echo ""
+echo "Image pullspecs:"
+echo "  mcp_gateway:          $MCP_GATEWAY_IMAGE"
+echo "  mcp_gateway_operator: $MCP_OPERATOR_IMAGE"
+
+# Extract SHAs from the images (if digest-pinned)
 MCP_GATEWAY_SHA="${MCP_GATEWAY_IMAGE##*@}"
 MCP_OPERATOR_SHA="${MCP_OPERATOR_IMAGE##*@}"
 
-# helper: get the image ref for a given component and environment
-get_image() {
-    local component=$1
-    local env=$2
-    local image sha registry
+# Read configuration values
+CSV_NAME=$(yq '.csv.name' "$CONFIG")
+CSV_VERSION=$(yq '.csv.version' "$CONFIG")
+DISPLAY_NAME=$(yq '.csv.displayName' "$CONFIG")
+DESCRIPTION=$(yq '.csv.description' "$CONFIG")
+ICON_BASE64=$(yq '.csv.icon[0].base64data' "$CONFIG")
+ICON_MEDIATYPE=$(yq '.csv.icon[0].mediatype' "$CONFIG")
+DOC_URL=$(yq '.links.documentation' "$CONFIG")
+REPO_URL=$(yq '.links.repository' "$CONFIG")
+VALID_SUBSCRIPTION=$(yq '.validSubscription' "$CONFIG")
 
-    if [ "$component" = "mcp-gateway" ]; then
-        image="$MCP_GATEWAY_IMAGE"
-        sha="$MCP_GATEWAY_SHA"
-    else
-        image="$MCP_OPERATOR_IMAGE"
-        sha="$MCP_OPERATOR_SHA"
-    fi
+echo ""
+echo "Configuration:"
+echo "  CSV name:     $CSV_NAME"
+echo "  Version:      $CSV_VERSION"
+echo "  Display name: $DISPLAY_NAME"
 
-    if [ "$env" = "dev" ]; then
-        echo "$image"
+# Build registry mappings for each environment
+get_mcp_gateway_image() {
+    local env=$1
+    if [[ "$env" == "dev" ]]; then
+        echo "$MCP_GATEWAY_IMAGE"
     else
-        registry="$(yq ".registries.${env}.\"${component}\"" "$CONFIG")"
-        echo "${registry}@${sha}"
+        local registry=$(yq ".registries.${env}.\"mcp-gateway\"" "$CONFIG")
+        echo "${registry}@${MCP_GATEWAY_SHA}"
     fi
 }
 
+get_mcp_operator_image() {
+    local env=$1
+    if [[ "$env" == "dev" ]]; then
+        echo "$MCP_OPERATOR_IMAGE"
+    else
+        local registry=$(yq ".registries.${env}.\"mcp-gateway-operator\"" "$CONFIG")
+        echo "${registry}@${MCP_OPERATOR_SHA}"
+    fi
+}
+
+# Generate bundle for each environment
 for env in dev stage prod; do
-    output_dir="${REPO_ROOT}/$(yq ".output.${env}" "$CONFIG")"
+    output_dir="${PROJECT_ROOT}/$(yq ".output.${env}" "$CONFIG")"
+    manifests_dir="${output_dir}/manifests"
+    metadata_dir="${output_dir}/metadata"
 
-    echo "=== ${env} === (${output_dir})"
+    echo ""
+    echo "========================================"
+    echo "Generating ${env} bundle"
+    echo "Output: ${output_dir}"
+    echo "========================================"
 
-    # clean and copy from upstream
+    # Clean and create output directories
     rm -rf "${output_dir}"
-    mkdir -p "${output_dir}/manifests" "${output_dir}/metadata"
+    mkdir -p "${manifests_dir}" "${metadata_dir}"
 
-    # copy manifests (CSV + CRDs) from upstream
-    cp "${UPSTREAM_BUNDLE}"/manifests/*.yaml "${output_dir}/manifests/"
+    # Copy manifests (CSV + CRDs) from upstream
+    cp "${UPSTREAM_BUNDLE}/manifests/"*.yaml "${manifests_dir}/"
 
-    # copy metadata from downstream override (annotations with Red Hat-specific values)
-    cp "${DOWNSTREAM_BUNDLE}"/metadata/*.yaml "${output_dir}/metadata/"
-    echo "  metadata: using downstream annotations"
+    # Use downstream annotations.yaml instead of upstream
+    cp "${ANNOTATIONS_FILE}" "${metadata_dir}/annotations.yaml"
 
-    # generate dependencies.yaml from config
+    # Generate dependencies.yaml from config
     if yq -e '.dependencies' "$CONFIG" &>/dev/null; then
-        yq '{"dependencies": .dependencies}' "$CONFIG" > "${output_dir}/metadata/dependencies.yaml"
-        echo "  dependencies: generated"
+        yq '{"dependencies": .dependencies}' "$CONFIG" > "${metadata_dir}/dependencies.yaml"
+        echo "  Dependencies: generated"
     fi
 
-    csv="${output_dir}/manifests/mcp-gateway.clusterserviceversion.yaml"
+    CSV_FILE="${manifests_dir}/mcp-gateway.clusterserviceversion.yaml"
 
-    # --- CSV metadata ---
-    yq -i ".metadata.name = \"${CSV_NAME}\"" "$csv"
-    yq -i ".spec.version = \"${CSV_VERSION}\"" "$csv"
-    yq -i ".spec.displayName = \"${CSV_DISPLAY_NAME}\"" "$csv"
-    yq -i ".spec.description = \"${CSV_DESCRIPTION}\"" "$csv"
-    echo "  csv: ${CSV_NAME}"
+    # Get the image references for this environment
+    gateway_image=$(get_mcp_gateway_image "$env")
+    operator_image=$(get_mcp_operator_image "$env")
 
-    # --- icon ---
-    yq -i ".spec.icon[0].base64data = \"${ICON_BASE64}\"" "$csv"
-    yq -i ".spec.icon[0].mediatype = \"${ICON_MEDIATYPE}\"" "$csv"
-    echo "  icon: replaced with RHCL product icon"
+    echo "  MCP Gateway:          ${gateway_image}"
+    echo "  MCP Gateway Operator: ${operator_image}"
 
-    # --- links ---
-    yq -i ".spec.links[0].name = \"Documentation\"" "$csv"
-    yq -i ".spec.links[0].url = \"${DOCS_URL}\"" "$csv"
-    yq -i ".spec.links[1].name = \"Repository\"" "$csv"
-    yq -i ".spec.links[1].url = \"${REPO_URL}\"" "$csv"
+    # Update CSV: operator container image
+    yq -i '(.spec.install.spec.deployments[] | select(.name == "mcp-gateway-controller") | .spec.template.spec.containers[] | select(.name == "mcp-controller") | .image) = "'"${operator_image}"'"' "${CSV_FILE}"
 
-    # --- annotations ---
-    yq -i '.metadata.annotations.vendor = "Red Hat, Inc."' "$csv"
-    yq -i ".metadata.annotations.repository = \"${REPO_URL}\"" "$csv"
-    yq -i '.metadata.annotations.support = "Red Hat"' "$csv"
+    # Update CSV: containerImage annotation
+    yq -i '.metadata.annotations.containerImage = "'"${operator_image}"'"' "${CSV_FILE}"
 
-    # feature annotations
-    yq -i ".metadata.annotations.\"features.operators.openshift.io/disconnected\" = \"${DISCONNECTED}\"" "$csv"
-    yq -i ".metadata.annotations.\"features.operators.openshift.io/fips-compliant\" = \"${FIPS}\"" "$csv"
-    yq -i ".metadata.annotations.\"features.operators.openshift.io/proxy-aware\" = \"${PROXY}\"" "$csv"
+    # Update CSV: RELATED_IMAGE_ROUTER_BROKER env var
+    yq -i '(.spec.install.spec.deployments[] | select(.name == "mcp-gateway-controller") | .spec.template.spec.containers[] | select(.name == "mcp-controller") | .env[] | select(.name == "RELATED_IMAGE_ROUTER_BROKER") | .value) = "'"${gateway_image}"'"' "${CSV_FILE}"
 
-    # architecture labels
+    # Update CSV: relatedImages
+    yq -i ".spec.relatedImages = [{\"image\": \"${gateway_image}\", \"name\": \"router-broker\"}, {\"image\": \"${operator_image}\", \"name\": \"controller\"}]" "${CSV_FILE}"
+
+    # Update CSV: Add RHCL-specific feature annotations from config
+    yq -i '.metadata.annotations["features.operators.openshift.io/disconnected"] = "'"$(yq '.features.disconnected' "$CONFIG")"'"' "${CSV_FILE}"
+    yq -i '.metadata.annotations["features.operators.openshift.io/fips-compliant"] = "'"$(yq '.features.fips-compliant' "$CONFIG")"'"' "${CSV_FILE}"
+    yq -i '.metadata.annotations["features.operators.openshift.io/proxy-aware"] = "'"$(yq '.features.proxy-aware' "$CONFIG")"'"' "${CSV_FILE}"
+    yq -i '.metadata.annotations["features.operators.openshift.io/tls-profiles"] = "'"$(yq '.features.tls-profiles' "$CONFIG")"'"' "${CSV_FILE}"
+    yq -i '.metadata.annotations["features.operators.openshift.io/token-auth-aws"] = "'"$(yq '.features.token-auth-aws' "$CONFIG")"'"' "${CSV_FILE}"
+    yq -i '.metadata.annotations["features.operators.openshift.io/token-auth-azure"] = "'"$(yq '.features.token-auth-azure' "$CONFIG")"'"' "${CSV_FILE}"
+    yq -i '.metadata.annotations["features.operators.openshift.io/token-auth-gcp"] = "'"$(yq '.features.token-auth-gcp' "$CONFIG")"'"' "${CSV_FILE}"
+    yq -i '.metadata.annotations["features.operators.openshift.io/cnf"] = "'"$(yq '.features.cnf' "$CONFIG")"'"' "${CSV_FILE}"
+    yq -i '.metadata.annotations["features.operators.openshift.io/cni"] = "'"$(yq '.features.cni' "$CONFIG")"'"' "${CSV_FILE}"
+    yq -i '.metadata.annotations["features.operators.openshift.io/csi"] = "'"$(yq '.features.csi' "$CONFIG")"'"' "${CSV_FILE}"
+
+    # Update CSV: valid subscription
+    yq -i '.metadata.annotations["operators.openshift.io/valid-subscription"] = "[\"'"${VALID_SUBSCRIPTION}"'\"]"' "${CSV_FILE}"
+
+    # Update CSV: Add architecture labels from config
     for arch in $(yq '.architectures[]' "$CONFIG"); do
-        yq -i ".metadata.labels.\"operatorframework.io/arch.${arch}\" = \"supported\"" "$csv"
-        yq -i ".metadata.labels.\"operatorframework.io/os.linux\" = \"supported\"" "$csv"
+        yq -i ".metadata.labels[\"operatorframework.io/arch.${arch}\"] = \"supported\"" "${CSV_FILE}"
     done
-    echo "  architectures: $(yq '.architectures | join(", ")' "$CONFIG")"
+    yq -i '.metadata.labels["operatorframework.io/os.linux"] = "supported"' "${CSV_FILE}"
 
-    # --- image references ---
-    gateway_image="$(get_image mcp-gateway "$env")"
-    operator_image="$(get_image mcp-gateway-operator "$env")"
+    # Update CSV: Set name, display name, description, and icon
+    yq -i ".metadata.name = \"${CSV_NAME}\"" "${CSV_FILE}"
+    yq -i ".spec.version = \"${CSV_VERSION}\"" "${CSV_FILE}"
+    yq -i ".spec.displayName = \"${DISPLAY_NAME}\"" "${CSV_FILE}"
+    yq -i ".spec.description = \"${DESCRIPTION}\"" "${CSV_FILE}"
+    yq -i ".spec.icon[0].base64data = \"${ICON_BASE64}\"" "${CSV_FILE}"
+    yq -i ".spec.icon[0].mediatype = \"${ICON_MEDIATYPE}\"" "${CSV_FILE}"
 
-    for image_key in mcp-gateway mcp-gateway-operator; do
-        upstream_ref="$(yq ".upstream.\"${image_key}\"" "$CONFIG")"
-        if [ "$image_key" = "mcp-gateway" ]; then
-            target_ref="$gateway_image"
-        else
-            target_ref="$operator_image"
-        fi
+    # Update CSV: Set documentation and repository links
+    yq -i '.metadata.annotations.vendor = "Red Hat, Inc."' "${CSV_FILE}"
+    yq -i '.metadata.annotations.repository = "'"${REPO_URL}"'"' "${CSV_FILE}"
+    yq -i '.metadata.annotations.support = "Red Hat"' "${CSV_FILE}"
+    yq -i ".spec.links[0].name = \"Documentation\"" "${CSV_FILE}"
+    yq -i ".spec.links[0].url = \"${DOC_URL}\"" "${CSV_FILE}"
+    yq -i ".spec.links[1].name = \"Repository\"" "${CSV_FILE}"
+    yq -i ".spec.links[1].url = \"${REPO_URL}\"" "${CSV_FILE}"
 
-        echo "  ${image_key}: ${upstream_ref} -> ${target_ref}"
-        sed -i'' -e "s|${upstream_ref}|${target_ref}|g" "$csv"
-    done
+    # Update CSV: Remove replaces and skipRange (managed in catalog repo)
+    yq -i 'del(.spec.replaces)' "${CSV_FILE}"
+    yq -i 'del(.spec.skipRange)' "${CSV_FILE}"
 
-    # update containerImage annotation
-    yq -i ".metadata.annotations.containerImage = \"${operator_image}\"" "$csv"
-
-    # ensure relatedImages has both entries
-    yq -i ".spec.relatedImages = [{\"image\": \"${gateway_image}\", \"name\": \"router-broker\"}, {\"image\": \"${operator_image}\", \"name\": \"controller\"}]" "$csv"
-
-    # --- cleanup upstream-only fields ---
-    yq -i 'del(.spec.replaces)' "$csv"
-    yq -i 'del(.spec.skipRange)' "$csv"
-
-    echo "  done"
-    echo ""
+    echo "  Done!"
 done
 
-echo "bundle generation complete. review changes with:"
-echo "  git diff bundle-dev/ bundle-stage/ bundle/"
+echo ""
+echo "========================================"
+echo "All bundles generated successfully!"
+echo "========================================"
+echo ""
+echo "Output directories:"
+echo "  - bundle/       (production)"
+echo "  - bundle-dev/   (development)"
+echo "  - bundle-stage/ (staging)"
+echo ""

@@ -12,16 +12,24 @@ metadata:
     operators.operatorframework.io/project_layout: go.kubebuilder.io/v4
     repository: https://github.com/Kuadrant/mcp-gateway
     support: Red Hat
-    vendor: Red Hat, Inc.
-    features.operators.openshift.io/disconnected: "false"
+    features.operators.openshift.io/disconnected: "true"
     features.operators.openshift.io/fips-compliant: "false"
     features.operators.openshift.io/proxy-aware: "false"
+    features.operators.openshift.io/tls-profiles: "false"
+    features.operators.openshift.io/token-auth-aws: "false"
+    features.operators.openshift.io/token-auth-azure: "false"
+    features.operators.openshift.io/token-auth-gcp: "false"
+    features.operators.openshift.io/cnf: "false"
+    features.operators.openshift.io/cni: "false"
+    features.operators.openshift.io/csi: "false"
+    operators.openshift.io/valid-subscription: '["Red Hat Connectivity Link"]'
+    vendor: Red Hat, Inc.
   name: mcp-gateway.v0.6.0
   namespace: placeholder
   labels:
     operatorframework.io/arch.amd64: supported
-    operatorframework.io/os.linux: supported
     operatorframework.io/arch.arm64: supported
+    operatorframework.io/os.linux: supported
 spec:
   apiservicedefinitions: {}
   customresourcedefinitions:
@@ -183,8 +191,8 @@ spec:
                       - --log-level=0
                     env:
                       - name: RELATED_IMAGE_ROUTER_BROKER
-                        value: ghcr.io/kuadrant/mcp-gateway:v0.6.0
-                    image: ghcr.io/kuadrant/mcp-controller:v0.6.0
+                        value: quay.io/redhat-user-workloads/api-management-tenant/rhcl-1-3-mcp-gateway@sha256:6c70a860bc6e26caa088a49f259282d1751f3df110e8a25bb462642198f33474
+                    image: quay.io/redhat-user-workloads/api-management-tenant/rhcl-1-3-mcp-gateway-operator@sha256:bed2154aa9a1cc1c91e21da7ebe68be5be81c5ff42df0d1783b403bfa02fd644
                     imagePullPolicy: IfNotPresent
                     livenessProbe:
                       httpGet:
