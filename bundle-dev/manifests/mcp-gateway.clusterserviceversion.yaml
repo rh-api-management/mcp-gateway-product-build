@@ -6,7 +6,7 @@ metadata:
     capabilities: Basic Install
     categories: Integration & Delivery
     containerImage: quay.io/redhat-user-workloads/api-management-tenant/rhcl-1-3-mcp-gateway-operator@sha256:b440c71a0f044e20096fcda53ab4991418563d8d400fdddd8f96e282a99a976b
-    createdAt: "2026-04-10T09:45:58Z"
+    createdAt: "2026-04-16T10:38:53Z"
     description: An Envoy-based gateway for Model Context Protocol (MCP) servers
     operators.operatorframework.io/builder: operator-sdk-v1.38.0
     operators.operatorframework.io/project_layout: go.kubebuilder.io/v4
@@ -183,8 +183,8 @@ spec:
                       - --log-level=0
                     env:
                       - name: RELATED_IMAGE_ROUTER_BROKER
-                        value: quay.io/redhat-user-workloads/api-management-tenant/rhcl-1-3-mcp-gateway@sha256:74c6f6a7c794e104c20a8e9ac13872b2320bc7782610a4d6c62feffbd2f8408e
-                    image: quay.io/redhat-user-workloads/api-management-tenant/rhcl-1-3-mcp-gateway-operator@sha256:b440c71a0f044e20096fcda53ab4991418563d8d400fdddd8f96e282a99a976b
+                        value: ghcr.io/kuadrant/mcp-gateway:v0.6.0
+                    image: ghcr.io/kuadrant/mcp-controller:v0.6.0
                     imagePullPolicy: IfNotPresent
                     livenessProbe:
                       httpGet:
