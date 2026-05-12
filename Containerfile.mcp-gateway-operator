@@ -9,17 +9,17 @@ ENV BINARY_NAME="mcp_controller"
 WORKDIR /workspace
 
 # Copy the Go Modules manifests
-COPY mcp-gateway-operator/go.mod go.mod
-COPY mcp-gateway-operator/go.sum go.sum
+COPY mcp-gateway/go.mod go.mod
+COPY mcp-gateway/go.sum go.sum
 # cache deps before building and copying source so that we don't need to re-download as much
 # and so that source changes don't invalidate our downloaded layer
 RUN go mod download
 
 # Copy the go source
-COPY mcp-gateway-operator/cmd/ cmd/
-COPY mcp-gateway-operator/internal/ internal/
-COPY mcp-gateway-operator/api/ api/
-COPY mcp-gateway-operator/LICENSE /licenses/LICENSE
+COPY mcp-gateway/cmd/ cmd/
+COPY mcp-gateway/internal/ internal/
+COPY mcp-gateway/api/ api/
+COPY mcp-gateway/LICENSE /licenses/LICENSE
 
 ARG GITHUB_SHA
 ENV GITHUB_SHA=${GITHUB_SHA:-unknown}
