@@ -36,7 +36,7 @@ UPSTREAM_BUNDLE="${PROJECT_ROOT}/$(yq '.upstream_bundle' "$CONFIG")"
 
 if [[ ! -d "$UPSTREAM_BUNDLE" ]]; then
     echo "Error: upstream bundle not found at ${UPSTREAM_BUNDLE}"
-    echo "Make sure the mcp-gateway-operator submodule is initialized: git submodule update --init"
+    echo "Make sure the mcp-gateway submodule is initialized: git submodule update --init"
     exit 1
 fi
 
