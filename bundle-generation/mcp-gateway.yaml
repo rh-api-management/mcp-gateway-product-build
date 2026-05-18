@@ -20,6 +20,11 @@ links:
   documentation: https://github.com/Kuadrant/mcp-gateway/tree/main/docs
   repository: https://github.com/Kuadrant/mcp-gateway
 
+# Provider information
+provider:
+  name: Red Hat
+  url: https://www.redhat.com
+
 # Valid subscription for marketplace
 validSubscription: Red Hat Connectivity Link
 
