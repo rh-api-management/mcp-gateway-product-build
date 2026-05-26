@@ -9,15 +9,15 @@ metadata:
     pipelinesascode.tekton.dev/cancel-in-progress: "true"
     pipelinesascode.tekton.dev/max-keep-runs: "3"
     pipelinesascode.tekton.dev/on-cel-expression: event == "pull_request" && target_branch
-      == "rhcl-1.3" && ( "bundle-stage/*".pathChanged() || "Containerfile.bundle-stage".pathChanged()
-      || "image-pullspecs.yaml".pathChanged() || ".tekton/bundle-build-pipeline.yaml".pathChanged()
-      || ".tekton/rhcl-1-3-mcp-gateway-operator-bundle-stage-pull-request.yaml".pathChanged() )
+      == "rhcl-1.4" && ( "mcp-gateway/*".pathChanged() || "mcp-gateway".pathChanged() || "Containerfile.mcp-gateway".pathChanged()
+      || ".tekton/multi-arch-build-pipeline.yaml".pathChanged() || ".tekton/rhcl-1-4-mcp-gateway-pull-request.yaml".pathChanged()
+      )
   creationTimestamp: null
   labels:
-    appstudio.openshift.io/application: rhcl-1-3-mcp-gateway
-    appstudio.openshift.io/component: rhcl-1-3-mcp-gateway-operator-bundle-stage
+    appstudio.openshift.io/application: rhcl-1-4-mcp-gateway
+    appstudio.openshift.io/component: rhcl-1-4-mcp-gateway
     pipelines.appstudio.openshift.io/type: build
-  name: rhcl-1-3-mcp-gateway-operator-bundle-stage-on-pull-request
+  name: rhcl-1-4-mcp-gateway-on-pull-request
   namespace: api-management-tenant
 spec:
   params:
@@ -26,15 +26,17 @@ spec:
   - name: revision
     value: '{{revision}}'
   - name: output-image
-    value: quay.io/redhat-user-workloads/api-management-tenant/rhcl-1-3-mcp-gateway-operator-bundle-stage:on-pr-{{revision}}
+    value: quay.io/redhat-user-workloads/api-management-tenant/rhcl-1-4-mcp-gateway:on-pr-{{revision}}
   - name: image-expires-after
     value: 5d
   - name: dockerfile
-    value: Containerfile.bundle-stage
+    value: Containerfile.mcp-gateway
+  - name: prefetch-input
+    value: '[{"type": "gomod", "path": "mcp-gateway/"}]'
   pipelineRef:
-    name: bundle-build-pipeline
+    name: build-pipeline
   taskRunTemplate:
-    serviceAccountName: build-pipeline-rhcl-1-3-mcp-gateway-operator-bundle-stage
+    serviceAccountName: build-pipeline-rhcl-1-4-mcp-gateway
   workspaces:
   - name: git-auth
     secret:

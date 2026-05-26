@@ -8,15 +8,15 @@ metadata:
     pipelinesascode.tekton.dev/cancel-in-progress: "false"
     pipelinesascode.tekton.dev/max-keep-runs: "3"
     pipelinesascode.tekton.dev/on-cel-expression: event == "push" && target_branch
-      == "rhcl-1.3" && ( "bundle/*".pathChanged() || "Containerfile.bundle".pathChanged()
+      == "rhcl-1.4" && ( "bundle/*".pathChanged() || "Containerfile.bundle".pathChanged()
       || "image-pullspecs.yaml".pathChanged() || ".tekton/bundle-build-pipeline.yaml".pathChanged()
-      || ".tekton/rhcl-1-3-mcp-gateway-operator-bundle-push.yaml".pathChanged() )
+      || ".tekton/rhcl-1-4-mcp-gateway-operator-bundle-push.yaml".pathChanged() )
   creationTimestamp: null
   labels:
-    appstudio.openshift.io/application: rhcl-1-3-mcp-gateway
-    appstudio.openshift.io/component: rhcl-1-3-mcp-gateway-operator-bundle
+    appstudio.openshift.io/application: rhcl-1-4-mcp-gateway
+    appstudio.openshift.io/component: rhcl-1-4-mcp-gateway-operator-bundle
     pipelines.appstudio.openshift.io/type: build
-  name: rhcl-1-3-mcp-gateway-operator-bundle-on-push
+  name: rhcl-1-4-mcp-gateway-operator-bundle-on-push
   namespace: api-management-tenant
 spec:
   params:
@@ -25,13 +25,13 @@ spec:
   - name: revision
     value: '{{revision}}'
   - name: output-image
-    value: quay.io/redhat-user-workloads/api-management-tenant/rhcl-1-3-mcp-gateway-operator-bundle:{{revision}}
+    value: quay.io/redhat-user-workloads/api-management-tenant/rhcl-1-4-mcp-gateway-operator-bundle:{{revision}}
   - name: dockerfile
     value: Containerfile.bundle
   pipelineRef:
     name: bundle-build-pipeline
   taskRunTemplate:
-    serviceAccountName: build-pipeline-rhcl-1-3-mcp-gateway-operator-bundle
+    serviceAccountName: build-pipeline-rhcl-1-4-mcp-gateway-operator-bundle
   workspaces:
   - name: git-auth
     secret:
