@@ -33,7 +33,7 @@ RUN CGO_ENABLED=0 GOOS=linux go build \
 
 FROM registry.redhat.io/ubi9/ubi-minimal:latest
 
-LABEL version="0.7.0" \
+LABEL version="0.6.1-rc1" \
       com.redhat.component="mcp-gateway-operator" \
       name="rhcl-tech-preview/mcp-gateway-operator-rhel9" \
       cpe="cpe:/a:redhat:connectivity_link:1::el9" \
