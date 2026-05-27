@@ -24,7 +24,7 @@ metadata:
     features.operators.openshift.io/csi: "false"
     operators.openshift.io/valid-subscription: '["Red Hat Connectivity Link"]'
     vendor: Red Hat, Inc.
-  name: mcp-gateway.v0.6.0
+  name: mcp-gateway.v0.7.0
   namespace: placeholder
   labels:
     operatorframework.io/arch.amd64: supported
@@ -191,7 +191,7 @@ spec:
                       - --log-level=0
                     env:
                       - name: RELATED_IMAGE_ROUTER_BROKER
-                        value: registry.stage.redhat.io/rhcl-tech-preview/mcp-gateway-rhel9@sha256:49308fb631ced835c79d97188dbf13c601e5401544b085feb2bf975a7beebce0
+                        value: registry.stage.redhat.io/rhcl-tech-preview/mcp-gateway-rhel9@sha256:bae81a61b38e1be8d3a460a5ddb9cae2bd440a3749d4ae8ae1ca5f671616c26d
                     image: registry.stage.redhat.io/rhcl-tech-preview/mcp-gateway-rhel9-operator@sha256:9e279b903f3be783027a0bfac60f19b8f5c0ccc3451ab13362cd3a9a20bd438a
                     imagePullPolicy: IfNotPresent
                     livenessProbe:
@@ -252,8 +252,8 @@ spec:
     name: Kuadrant
     url: https://kuadrant.io
   relatedImages:
-    - image: registry.stage.redhat.io/rhcl-tech-preview/mcp-gateway-rhel9@sha256:49308fb631ced835c79d97188dbf13c601e5401544b085feb2bf975a7beebce0
+    - image: registry.stage.redhat.io/rhcl-tech-preview/mcp-gateway-rhel9@sha256:bae81a61b38e1be8d3a460a5ddb9cae2bd440a3749d4ae8ae1ca5f671616c26d
       name: router-broker
     - image: registry.stage.redhat.io/rhcl-tech-preview/mcp-gateway-rhel9-operator@sha256:9e279b903f3be783027a0bfac60f19b8f5c0ccc3451ab13362cd3a9a20bd438a
       name: controller
-  version: 0.6.0
+  version: 0.7.0
