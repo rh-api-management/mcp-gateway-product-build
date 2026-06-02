@@ -28,7 +28,7 @@ ENV GITHUB_SHA=${GITHUB_SHA:-unknown}
 RUN CGO_ENABLED=0 GOOS=linux go build \
     -ldflags "-X main.version=${GITHUB_SHA}" \
     -o ${BINARY_NAME} \
-    cmd/mcp-broker-router/main.go
+    ./cmd/mcp-broker-router/
 
 
 FROM registry.redhat.io/ubi9/ubi-minimal:latest
