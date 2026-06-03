@@ -2,4 +2,4 @@
 # This file is updated automatically by Konflux
 images:
   mcp_gateway: quay.io/redhat-user-workloads/api-management-tenant/rhcl-1-4-mcp-gateway@sha256:e2a699c52789a0878b72489d89b2e3c4eb28d411a654c3c89c4b183d75723ac2
-  mcp_gateway_operator: quay.io/redhat-user-workloads/api-management-tenant/rhcl-1-4-mcp-gateway-operator@sha256:329f6a0c28a3a733d25367ef3b725ae5d86c3b6129350bc3a58d2c7593db78a6
+  mcp_gateway_operator: quay.io/redhat-user-workloads/api-management-tenant/rhcl-1-4-mcp-gateway-operator@sha256:d523288fad298f12a8dfc559ff279c06811b32db418c0ffd7a291bfd115fef82
