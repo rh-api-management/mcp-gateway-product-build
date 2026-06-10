@@ -33,7 +33,7 @@ RUN CGO_ENABLED=0 GOOS=linux go build \
 
 FROM registry.redhat.io/ubi9/ubi-minimal:latest
 
-LABEL version="0.7.0" \
+LABEL version="0.0.0-nightly" \
       com.redhat.component="mcp-gateway" \
       name="rhcl-tech-preview/mcp-gateway-rhel9" \
       cpe="cpe:/a:redhat:connectivity_link:1::el9" \
@@ -46,7 +46,7 @@ LABEL version="0.7.0" \
       io.openshift.tags="mcp, gateway, envoy, ai" \
       url="redhat.com" \
       distribution-scope="public" \
-      release="0.7.0" \
+      release="0.0.0-nightly" \
       vendor="Red Hat, Inc."
 
 ENV OPERATOR_BINARY_NAME="mcp_gateway" \

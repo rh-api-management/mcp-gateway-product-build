@@ -4,19 +4,20 @@ metadata:
   annotations:
     build.appstudio.openshift.io/repo: https://github.com/rh-api-management/mcp-gateway-product-build?rev={{revision}}
     build.appstudio.redhat.com/commit_sha: '{{revision}}'
+    build.appstudio.redhat.com/pull_request_number: '{{pull_request_number}}'
     build.appstudio.redhat.com/target_branch: '{{target_branch}}'
-    pipelinesascode.tekton.dev/cancel-in-progress: "false"
+    pipelinesascode.tekton.dev/cancel-in-progress: "true"
     pipelinesascode.tekton.dev/max-keep-runs: "3"
-    pipelinesascode.tekton.dev/on-cel-expression: event == "push" && target_branch
-      == "rhcl-1.4" && ( "bundle/*".pathChanged() || "Containerfile.bundle".pathChanged()
+    pipelinesascode.tekton.dev/on-cel-expression: event == "pull_request" && target_branch
+      == "nightly" && ( "bundle/*".pathChanged() || "Containerfile.bundle".pathChanged()
       || "image-pullspecs.yaml".pathChanged() || ".tekton/bundle-build-pipeline.yaml".pathChanged()
-      || ".tekton/rhcl-1-4-mcp-gateway-operator-bundle-push.yaml".pathChanged() )
+      || ".tekton/nightly-mcp-gateway-operator-bundle-pull-request.yaml".pathChanged() )
   creationTimestamp: null
   labels:
-    appstudio.openshift.io/application: rhcl-1-4-mcp-gateway
-    appstudio.openshift.io/component: rhcl-1-4-mcp-gateway-operator-bundle
+    appstudio.openshift.io/application: nightly-mcp-gateway
+    appstudio.openshift.io/component: nightly-mcp-gateway-operator-bundle
     pipelines.appstudio.openshift.io/type: build
-  name: rhcl-1-4-mcp-gateway-operator-bundle-on-push
+  name: nightly-mcp-gateway-operator-bundle-on-pull-request
   namespace: api-management-tenant
 spec:
   params:
@@ -25,13 +26,15 @@ spec:
   - name: revision
     value: '{{revision}}'
   - name: output-image
-    value: quay.io/redhat-user-workloads/api-management-tenant/rhcl-1-4-mcp-gateway-operator-bundle:{{revision}}
+    value: quay.io/redhat-user-workloads/api-management-tenant/nightly-mcp-gateway-operator-bundle:on-pr-{{revision}}
+  - name: image-expires-after
+    value: 5d
   - name: dockerfile
     value: Containerfile.bundle
   pipelineRef:
     name: bundle-build-pipeline
   taskRunTemplate:
-    serviceAccountName: build-pipeline-rhcl-1-4-mcp-gateway-operator-bundle
+    serviceAccountName: build-pipeline-nightly-mcp-gateway-operator-bundle
   workspaces:
   - name: git-auth
     secret:
