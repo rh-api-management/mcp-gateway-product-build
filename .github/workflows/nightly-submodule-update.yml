@@ -1,0 +1,58 @@
+name: Nightly Submodule Update
+
+on:
+  schedule:
+    - cron: '0 2 * * *'
+  workflow_dispatch:
+
+jobs:
+  update-submodule:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout repository with submodules
+        uses: actions/checkout@v4
+        with:
+          ref: nightly
+          submodules: true
+          fetch-depth: 0
+
+      - name: Update mcp-gateway to latest main
+        id: update
+        run: |
+          cd mcp-gateway
+          git fetch origin main
+          CURRENT_SHA=$(git rev-parse HEAD)
+          LATEST_SHA=$(git rev-parse origin/main)
+
+          if [ "$CURRENT_SHA" = "$LATEST_SHA" ]; then
+            echo "Already at latest commit on main ($CURRENT_SHA)"
+            echo "has_changes=false" >> $GITHUB_OUTPUT
+          else
+            echo "Updating: $CURRENT_SHA -> $LATEST_SHA"
+            git checkout origin/main
+            echo "has_changes=true" >> $GITHUB_OUTPUT
+            echo "current_sha=${CURRENT_SHA:0:12}" >> $GITHUB_OUTPUT
+            echo "latest_sha=${LATEST_SHA:0:12}" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Push update
+        if: steps.update.outputs.has_changes == 'true'
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add mcp-gateway
+          git commit -m "chore: update mcp-gateway submodule to latest main (${{ steps.update.outputs.latest_sha }})"
+          git push
+
+      - name: Summary
+        if: always()
+        run: |
+          echo "## Nightly Submodule Update" >> $GITHUB_STEP_SUMMARY
+          if [ "${{ steps.update.outputs.has_changes }}" = "true" ]; then
+            echo "- Updated mcp-gateway: ${{ steps.update.outputs.current_sha }} -> ${{ steps.update.outputs.latest_sha }}" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "- No update needed: submodule already at latest main" >> $GITHUB_STEP_SUMMARY
+          fi
