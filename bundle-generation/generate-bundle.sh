@@ -11,7 +11,7 @@ set -euo pipefail
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 PROJECT_ROOT="${SCRIPT_DIR}/.."
 CONFIG="${SCRIPT_DIR}/mcp-gateway.yaml"
-IMAGE_PULLSPECS="${PROJECT_ROOT}/image-pullspecs.yaml"
+IMAGE_PULLSPECS_DIR="${SCRIPT_DIR}/image-pullspecs"
 ANNOTATIONS_FILE="${SCRIPT_DIR}/bundle/metadata/annotations.yaml"
 
 # Check dependencies
@@ -27,8 +27,8 @@ if [[ ! -f "$CONFIG" ]]; then
     exit 1
 fi
 
-if [[ ! -f "$IMAGE_PULLSPECS" ]]; then
-    echo "Error: Image pullspecs not found at $IMAGE_PULLSPECS"
+if [[ ! -d "$IMAGE_PULLSPECS_DIR" ]]; then
+    echo "Error: Image pullspecs directory not found at $IMAGE_PULLSPECS_DIR"
     exit 1
 fi
 
@@ -43,12 +43,12 @@ fi
 echo "========================================"
 echo "Loading configuration from:"
 echo "  Config:      $CONFIG"
-echo "  Pullspecs:   $IMAGE_PULLSPECS"
+echo "  Pullspecs:   $IMAGE_PULLSPECS_DIR/"
 echo "========================================"
 
-# Read image pullspecs
-MCP_GATEWAY_IMAGE=$(yq '.images.mcp_gateway' "$IMAGE_PULLSPECS")
-MCP_OPERATOR_IMAGE=$(yq '.images.mcp_gateway_operator' "$IMAGE_PULLSPECS")
+# Read image pullspecs from individual files
+MCP_GATEWAY_IMAGE=$(yq '.image' "$IMAGE_PULLSPECS_DIR/mcp-gateway.yaml")
+MCP_OPERATOR_IMAGE=$(yq '.image' "$IMAGE_PULLSPECS_DIR/mcp-gateway-operator.yaml")
 
 echo ""
 echo "Image pullspecs:"
