@@ -6,7 +6,7 @@ metadata:
     capabilities: Basic Install
     categories: Integration & Delivery
     containerImage: quay.io/redhat-user-workloads/api-management-tenant/nightly-mcp-gateway-operator@sha256:1973fa79086eb6897b4cc5aaa303276c54e2c34fd4a31adb0cf6a42ca756b3ac
-    createdAt: "2026-06-02T08:58:40Z"
+    createdAt: "2026-05-27T17:36:10Z"
     description: An Envoy-based gateway for Model Context Protocol (MCP) servers
     operators.operatorframework.io/builder: operator-sdk-v1.38.0
     operators.operatorframework.io/project_layout: go.kubebuilder.io/v4
@@ -24,7 +24,7 @@ metadata:
     features.operators.openshift.io/csi: "false"
     operators.openshift.io/valid-subscription: '["Red Hat Connectivity Link"]'
     vendor: Red Hat, Inc.
-  name: mcp-gateway.v0.7.0
+  name: mcp-gateway.v0.0.0-alpha
   namespace: placeholder
   labels:
     operatorframework.io/arch.amd64: supported
@@ -191,7 +191,7 @@ spec:
                       - --log-level=0
                     env:
                       - name: RELATED_IMAGE_ROUTER_BROKER
-                        value: quay.io/redhat-user-workloads/api-management-tenant/nightly-mcp-gateway@sha256:e2a699c52789a0878b72489d89b2e3c4eb28d411a654c3c89c4b183d75723ac2
+                        value: quay.io/redhat-user-workloads/api-management-tenant/nightly-mcp-gateway@sha256:816c65fbb440dea36a4017cdc952de4c4f427984248f03b52a7e626a08fb6643
                     image: quay.io/redhat-user-workloads/api-management-tenant/nightly-mcp-gateway-operator@sha256:1973fa79086eb6897b4cc5aaa303276c54e2c34fd4a31adb0cf6a42ca756b3ac
                     imagePullPolicy: IfNotPresent
                     livenessProbe:
@@ -256,4 +256,4 @@ spec:
       name: router-broker
     - image: quay.io/redhat-user-workloads/api-management-tenant/nightly-mcp-gateway-operator@sha256:1973fa79086eb6897b4cc5aaa303276c54e2c34fd4a31adb0cf6a42ca756b3ac
       name: controller
-  version: 0.7.0
+  version: 0.0.0-alpha
