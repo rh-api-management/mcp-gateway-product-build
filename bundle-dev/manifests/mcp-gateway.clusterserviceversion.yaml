@@ -191,7 +191,7 @@ spec:
                       - --log-level=0
                     env:
                       - name: RELATED_IMAGE_ROUTER_BROKER
-                        value: quay.io/redhat-user-workloads/api-management-tenant/nightly-mcp-gateway@sha256:816c65fbb440dea36a4017cdc952de4c4f427984248f03b52a7e626a08fb6643
+                        value: quay.io/redhat-user-workloads/api-management-tenant/nightly-mcp-gateway@sha256:ea718072cd3a333fe9918a1873305b4b060b8894a0d59430d278a45546599f6a
                     image: quay.io/redhat-user-workloads/api-management-tenant/nightly-mcp-gateway-operator@sha256:21a4a77c991314065c9927ce945d626c822f286fdbd3b0339d5523ce80048ca0
                     imagePullPolicy: IfNotPresent
                     livenessProbe:
