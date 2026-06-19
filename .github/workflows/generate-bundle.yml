@@ -7,12 +7,14 @@ on:
       - 'mcp-gateway/bundle/**'
     branches:
       - 'rhcl-*'
+      - 'nightly'
   push:
     paths:
       - 'bundle-generation/**'
       - 'mcp-gateway/bundle/**'
     branches:
       - 'rhcl-*'
+      - 'nightly'
   workflow_dispatch: # Allow manual triggering
 
 permissions:

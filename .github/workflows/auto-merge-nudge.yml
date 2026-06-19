@@ -6,76 +6,15 @@ on:
     branches: [nightly]
 
 permissions:
-  contents: write
   pull-requests: write
-
-concurrency:
-  group: nudge-auto-merge
-  cancel-in-progress: false
 
 jobs:
   auto-merge:
     if: github.event.pull_request.user.login == 'red-hat-konflux[bot]' && startsWith(github.head_ref, 'konflux/component-updates/')
     runs-on: ubuntu-latest
     steps:
-      - name: Check if PR has conflicts
-        id: check
-        run: |
-          mergeable=$(gh pr view ${{ github.event.pull_request.number }} --json mergeable --jq '.mergeable')
-          echo "mergeable=$mergeable" >> "$GITHUB_OUTPUT"
-          echo "PR mergeable status: $mergeable"
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          GH_REPO: ${{ github.repository }}
-
-      - name: Checkout PR branch
-        if: steps.check.outputs.mergeable == 'CONFLICTING'
-        uses: actions/checkout@v4
-        with:
-          ref: ${{ github.head_ref }}
-          submodules: true
-          fetch-depth: 0
-
-      - name: Install yq
-        if: steps.check.outputs.mergeable == 'CONFLICTING'
-        run: |
-          sudo wget -qO /usr/local/bin/yq https://github.com/mikefarah/yq/releases/latest/download/yq_linux_amd64
-          sudo chmod +x /usr/local/bin/yq
-
-      - name: Rebase and regenerate CSV
-        if: steps.check.outputs.mergeable == 'CONFLICTING'
-        run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-
-          git rebase -X theirs origin/nightly
-
-          bash bundle-generation/generate-bundle.sh
-
-          if git diff --quiet && [ -z "$(git ls-files --others --exclude-standard)" ]; then
-            echo "No changes after regeneration."
-          else
-            git add -A
-            git commit -m "chore(deps): regenerate bundle after rebase"
-          fi
-
-          git push --force-with-lease origin HEAD:${{ github.head_ref }}
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          GH_REPO: ${{ github.repository }}
-
       - name: Approve PR
         run: gh pr review ${{ github.event.pull_request.number }} --approve
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          GH_REPO: ${{ github.repository }}
-
-      - name: Wait for checks and merge
-        run: |
-          echo "Waiting for status checks to complete..."
-          gh pr checks ${{ github.event.pull_request.number }} --watch --fail-fast --timeout 300
-          echo "All checks passed. Merging..."
-          gh pr merge ${{ github.event.pull_request.number }} --squash --delete-branch
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           GH_REPO: ${{ github.repository }}
