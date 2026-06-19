@@ -3,14 +3,12 @@ name: Generate Bundle
 on:
   pull_request:
     paths:
-      - 'image-pullspecs.yaml'
       - 'bundle-generation/**'
       - 'mcp-gateway/bundle/**'
     branches:
       - 'rhcl-*'
   push:
     paths:
-      - 'image-pullspecs.yaml'
       - 'bundle-generation/**'
       - 'mcp-gateway/bundle/**'
     branches:
@@ -51,7 +49,7 @@ jobs:
         if: steps.changes.outputs.changes == 'true'
         uses: stefanzweifel/git-auto-commit-action@v7
         with:
-          commit_message: Generate Bundles after change to image-pullspecs.yaml or mcp-gateway.yaml
+          commit_message: Generate Bundles after change to bundle-generation/ or mcp-gateway/bundle/
 
       - name: Validate bundles
         run: make validate-bundle
