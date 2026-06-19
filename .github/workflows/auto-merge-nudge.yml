@@ -70,8 +70,12 @@ jobs:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           GH_REPO: ${{ github.repository }}
 
-      - name: Enable auto-merge
-        run: gh pr merge ${{ github.event.pull_request.number }} --auto --squash
+      - name: Wait for checks and merge
+        run: |
+          echo "Waiting for status checks to complete..."
+          gh pr checks ${{ github.event.pull_request.number }} --watch --fail-fast
+          echo "All checks passed. Merging..."
+          gh pr merge ${{ github.event.pull_request.number }} --squash --delete-branch
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           GH_REPO: ${{ github.repository }}
