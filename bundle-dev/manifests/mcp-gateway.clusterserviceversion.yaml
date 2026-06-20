@@ -192,7 +192,7 @@ spec:
                     env:
                       - name: RELATED_IMAGE_ROUTER_BROKER
                         value: quay.io/redhat-user-workloads/api-management-tenant/nightly-mcp-gateway@sha256:46f2d40212ce6e5f7c296f17c4ec235f3abc5b99c865512a39447e04e2b18a63
-                    image: quay.io/redhat-user-workloads/api-management-tenant/nightly-mcp-gateway-operator@sha256:8c7b2b7793f18d21da32aa6f971188791d71fe8b3991a930e12e0c8ce113782e
+                    image: quay.io/redhat-user-workloads/api-management-tenant/nightly-mcp-gateway-operator@sha256:118c95c3ff6d009a3f59c119f3b9deb8c88d3014f9df2fba24084c2e507c1e9f
                     imagePullPolicy: IfNotPresent
                     livenessProbe:
                       httpGet:
