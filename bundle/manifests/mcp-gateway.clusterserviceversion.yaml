@@ -24,7 +24,7 @@ metadata:
     features.operators.openshift.io/csi: "false"
     operators.openshift.io/valid-subscription: '["Red Hat Connectivity Link"]'
     vendor: Red Hat, Inc.
-  name: mcp-gateway.v0.7.0
+  name: mcp-gateway.v0.7.1
   namespace: placeholder
   labels:
     operatorframework.io/arch.amd64: supported
@@ -256,4 +256,4 @@ spec:
       name: router-broker
     - image: registry.redhat.io/rhcl-tech-preview/mcp-gateway-rhel9-operator@sha256:517a1ade8715d362b0447e23197707b47dacfab42524ffb5d95fc2a981af93d2
       name: controller
-  version: 0.7.0
+  version: 0.7.1
