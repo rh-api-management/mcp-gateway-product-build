@@ -4,8 +4,8 @@
 
 # CSV metadata
 csv:
-  name: mcp-gateway.v0.7.0
-  version: "0.7.0"
+  name: mcp-gateway.v0.7.1
+  version: "0.7.1"
   displayName: MCP Gateway Operator (Tech Preview)
   description: "MCP Gateway enables you to federate, secure, and route Model Context Protocol (MCP) traffic through an Envoy-based gateway."
   icon:

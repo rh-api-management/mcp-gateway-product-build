@@ -46,7 +46,7 @@ LABEL version="0.7.1" \
       io.openshift.tags="mcp, controller, kubernetes, operator" \
       url="redhat.com" \
       distribution-scope="public" \
-      release="0.7.0" \
+      release="0.7.1" \
       vendor="Red Hat, Inc."
 
 ENV OPERATOR_BINARY_NAME="mcp_controller" \
