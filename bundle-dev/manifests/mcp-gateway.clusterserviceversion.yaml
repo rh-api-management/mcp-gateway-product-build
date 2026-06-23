@@ -5,7 +5,7 @@ metadata:
     alm-examples: "[\n  {\n    \"apiVersion\": \"mcp.kuadrant.io/v1alpha1\",\n    \"kind\": \"MCPGatewayExtension\",\n    \"metadata\": {\n      \"name\": \"mcp-gateway-extension\",\n      \"namespace\": \"mcp-system\"\n    },\n    \"spec\": {\n      \"targetRef\": {\n        \"group\": \"gateway.networking.k8s.io\",\n        \"kind\": \"Gateway\",\n        \"name\": \"mcp-gateway\",\n        \"namespace\": \"gateway-system\",\n        \"sectionName\": \"mcp\"\n      }\n    }\n  },\n  {\n    \"apiVersion\": \"mcp.kuadrant.io/v1alpha1\",\n    \"kind\": \"MCPServerRegistration\",\n    \"metadata\": {\n      \"name\": \"example-server\",\n      \"namespace\": \"mcp-test\"\n    },\n    \"spec\": {\n      \"prefix\": \"example_\",\n      \"targetRef\": {\n        \"group\": \"gateway.networking.k8s.io\",\n        \"kind\": \"HTTPRoute\",\n        \"name\": \"example-route\"\n      }\n    }\n  },\n  {\n    \"apiVersion\": \"mcp.kuadrant.io/v1alpha1\",\n    \"kind\": \"MCPVirtualServer\",\n    \"metadata\": {\n      \"name\": \"example-vs\",\n      \"namespace\": \"default\"\n    },\n    \"spec\": {\n      \"description\": \"example virtual server\",\n      \"tools\": [\n        \"server1_tool1\",\n        \"server2_tool2\"\n      ]\n    }\n  }\n]"
     capabilities: Basic Install
     categories: Integration & Delivery
-    containerImage: quay.io/redhat-user-workloads/api-management-tenant/nightly-mcp-gateway-operator@sha256:118c95c3ff6d009a3f59c119f3b9deb8c88d3014f9df2fba24084c2e507c1e9f
+    containerImage: quay.io/redhat-user-workloads/api-management-tenant/nightly-mcp-gateway-operator@sha256:b1d4e9b3c2b8867e4600882128bde9659bbfd2d5e70c64bb2ed7bab8c705fa00
     createdAt: "2026-05-27T17:36:10Z"
     description: An Envoy-based gateway for Model Context Protocol (MCP) servers
     operators.operatorframework.io/builder: operator-sdk-v1.38.0
@@ -192,7 +192,7 @@ spec:
                     env:
                       - name: RELATED_IMAGE_ROUTER_BROKER
                         value: quay.io/redhat-user-workloads/api-management-tenant/nightly-mcp-gateway@sha256:a09c4b964c53e9316d31b673d0b9d04b810cb61f0a214507051380063b96c4b1
-                    image: quay.io/redhat-user-workloads/api-management-tenant/nightly-mcp-gateway-operator@sha256:118c95c3ff6d009a3f59c119f3b9deb8c88d3014f9df2fba24084c2e507c1e9f
+                    image: quay.io/redhat-user-workloads/api-management-tenant/nightly-mcp-gateway-operator@sha256:b1d4e9b3c2b8867e4600882128bde9659bbfd2d5e70c64bb2ed7bab8c705fa00
                     imagePullPolicy: IfNotPresent
                     livenessProbe:
                       httpGet:
@@ -254,6 +254,6 @@ spec:
   relatedImages:
     - image: quay.io/redhat-user-workloads/api-management-tenant/nightly-mcp-gateway@sha256:a09c4b964c53e9316d31b673d0b9d04b810cb61f0a214507051380063b96c4b1
       name: router-broker
-    - image: quay.io/redhat-user-workloads/api-management-tenant/nightly-mcp-gateway-operator@sha256:118c95c3ff6d009a3f59c119f3b9deb8c88d3014f9df2fba24084c2e507c1e9f
+    - image: quay.io/redhat-user-workloads/api-management-tenant/nightly-mcp-gateway-operator@sha256:b1d4e9b3c2b8867e4600882128bde9659bbfd2d5e70c64bb2ed7bab8c705fa00
       name: controller
   version: 0.0.0-alpha
