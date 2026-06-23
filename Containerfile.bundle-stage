@@ -18,7 +18,7 @@ LABEL version="0.7.1" \
       io.openshift.tags="api, mcp, gateway" \
       url="redhat.com" \
       distribution-scope="public" \
-      release="1.4.0" \
+      release="1.4.1" \
       com.redhat.component="MCP Gateway Operator Bundle" \
       vendor="Red Hat, Inc."
 
