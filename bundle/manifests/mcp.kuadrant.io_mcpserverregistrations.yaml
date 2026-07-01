@@ -34,10 +34,6 @@ spec:
       jsonPath: .status.conditions[?(@.type=='Ready')].status
       name: Ready
       type: string
-    - description: Number of discovered tools
-      jsonPath: .status.discoveredTools
-      name: Tools
-      type: integer
     - description: Server categories for discovery
       jsonPath: .spec.category
       name: Category
@@ -297,11 +293,6 @@ spec:
                 x-kubernetes-list-map-keys:
                 - type
                 x-kubernetes-list-type: map
-              discoveredTools:
-                description: discoveredTools is the number of tools discovered from
-                  this MCPServerRegistration.
-                format: int32
-                type: integer
             type: object
         type: object
     served: true
