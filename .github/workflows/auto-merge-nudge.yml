@@ -21,9 +21,15 @@ jobs:
       - name: Check if PR has conflicts
         id: check
         run: |
-          mergeable=$(gh pr view ${{ github.event.pull_request.number }} --json mergeable --jq '.mergeable')
+          for i in $(seq 1 10); do
+            mergeable=$(gh pr view ${{ github.event.pull_request.number }} --json mergeable --jq '.mergeable')
+            echo "PR mergeable status: $mergeable (attempt $i)"
+            if [ "$mergeable" != "UNKNOWN" ]; then
+              break
+            fi
+            sleep 10
+          done
           echo "mergeable=$mergeable" >> "$GITHUB_OUTPUT"
-          echo "PR mergeable status: $mergeable"
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           GH_REPO: ${{ github.repository }}
