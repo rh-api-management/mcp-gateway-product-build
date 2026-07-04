@@ -6,7 +6,7 @@ metadata:
     capabilities: Basic Install
     categories: Integration & Delivery
     containerImage: quay.io/redhat-user-workloads/api-management-tenant/nightly-mcp-gateway-operator@sha256:25fbb13c69bf2ebd334188ec587f138447c98d5f88fd3b84a4f89df72057fcaf
-    createdAt: "2026-06-25T14:19:00Z"
+    createdAt: "2026-07-02T17:28:58Z"
     description: An Envoy-based gateway for Model Context Protocol (MCP) servers
     operators.operatorframework.io/builder: operator-sdk-v1.38.0
     operators.operatorframework.io/project_layout: go.kubebuilder.io/v4
