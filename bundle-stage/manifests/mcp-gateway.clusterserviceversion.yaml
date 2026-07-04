@@ -6,7 +6,7 @@ metadata:
     capabilities: Basic Install
     categories: Integration & Delivery
     containerImage: registry.stage.redhat.io/rhcl-tech-preview/mcp-gateway-rhel9-operator@sha256:6c6db31a28a8bff2807b08a7a065447f19d04ff2c92ca8f0da9ca2540e5d2f82
-    createdAt: "2026-06-25T14:19:00Z"
+    createdAt: "2026-07-02T17:28:58Z"
     description: An Envoy-based gateway for Model Context Protocol (MCP) servers
     operators.operatorframework.io/builder: operator-sdk-v1.38.0
     operators.operatorframework.io/project_layout: go.kubebuilder.io/v4
