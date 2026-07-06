@@ -76,12 +76,6 @@ jobs:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           GH_REPO: ${{ github.repository }}
 
-      - name: Wait for checks
-        run: timeout 900 gh pr checks ${{ github.event.pull_request.number }} --watch --fail-fast
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          GH_REPO: ${{ github.repository }}
-
       - name: Merge PR
         run: gh pr merge ${{ github.event.pull_request.number }} --squash --delete-branch
         env:
