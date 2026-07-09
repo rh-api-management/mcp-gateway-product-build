@@ -9,7 +9,7 @@ metadata:
     pipelinesascode.tekton.dev/max-keep-runs: "3"
     pipelinesascode.tekton.dev/on-cel-expression: event == "push" && target_branch
       == "rhcl-1.4" && ( "bundle-dev/*".pathChanged() || "Containerfile.bundle-dev".pathChanged()
-      || "image-pullspecs.yaml".pathChanged() || ".tekton/bundle-build-pipeline.yaml".pathChanged()
+      || "bundle-generation/image-pullspecs/*".pathChanged() || ".tekton/bundle-build-pipeline.yaml".pathChanged()
       || ".tekton/rhcl-1-4-mcp-gateway-operator-bundle-dev-push.yaml".pathChanged() )
   creationTimestamp: null
   labels:
