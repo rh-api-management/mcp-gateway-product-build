@@ -200,7 +200,7 @@ spec:
                       - --log-level=0
                     env:
                       - name: RELATED_IMAGE_ROUTER_BROKER
-                        value: registry.stage.redhat.io/rhcl-tech-preview/mcp-gateway-rhel9@sha256:62f048fb2dc1ff87db798cd3f4e54f289ddfdb89e4ca241c229c1bb7da7064b4
+                        value: registry.stage.redhat.io/rhcl-tech-preview/mcp-gateway-rhel9@sha256:892f903460f3c72b980d370a46db020ad37b3650ff328e9e56fa072465012f3c
                     image: registry.stage.redhat.io/rhcl-tech-preview/mcp-gateway-rhel9-operator@sha256:018c6893ac2f05390f45b519bb5c7d90b0f44a5e770d469ca923944ead35bd2d
                     imagePullPolicy: IfNotPresent
                     livenessProbe:
