@@ -25,7 +25,8 @@ ARG GITHUB_SHA
 ENV GITHUB_SHA=${GITHUB_SHA:-unknown}
 
 # Build MCP Gateway Operator
-RUN CGO_ENABLED=0 GOOS=linux go build \
+RUN CGO_ENABLED=1 GOEXPERIMENT=strictfipsruntime GOOS=linux go build \
+    -tags strictfipsruntime \
     -ldflags "-X main.version=${GITHUB_SHA}" \
     -o ${BINARY_NAME} \
     cmd/main.go
