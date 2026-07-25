@@ -1,2 +1,2 @@
 # Updated automatically by Konflux
-image: quay.io/redhat-user-workloads/api-management-tenant/nightly-mcp-gateway-operator@sha256:c31744792dd53f3c89d846949f11e6c311f164d64ab9dfa824c9f3cfca233b96
+image: quay.io/redhat-user-workloads/api-management-tenant/nightly-mcp-gateway-operator@sha256:0662693304bf2342ccb2caa7ff28ef4f1524cc70e5bc1acce9b54e28b4fdb323
