@@ -200,7 +200,7 @@ spec:
                       - --log-level=0
                     env:
                       - name: RELATED_IMAGE_ROUTER_BROKER
-                        value: registry.stage.redhat.io/rhcl-tech-preview/mcp-gateway-rhel9@sha256:a7a32b67bc466f3d71febd1e0e6058359609ace1714e81405944fd0087c50755
+                        value: registry.stage.redhat.io/rhcl-tech-preview/mcp-gateway-rhel9@sha256:e0787bbc068270fd3e5b8d132fabbf74a959fc0740c97dc9cbf8a1445dea4bdf
                     image: registry.stage.redhat.io/rhcl-tech-preview/mcp-gateway-rhel9-operator@sha256:0662693304bf2342ccb2caa7ff28ef4f1524cc70e5bc1acce9b54e28b4fdb323
                     imagePullPolicy: IfNotPresent
                     livenessProbe:
@@ -261,7 +261,7 @@ spec:
     name: Kuadrant
     url: https://kuadrant.io
   relatedImages:
-    - image: registry.stage.redhat.io/rhcl-tech-preview/mcp-gateway-rhel9@sha256:a7a32b67bc466f3d71febd1e0e6058359609ace1714e81405944fd0087c50755
+    - image: registry.stage.redhat.io/rhcl-tech-preview/mcp-gateway-rhel9@sha256:e0787bbc068270fd3e5b8d132fabbf74a959fc0740c97dc9cbf8a1445dea4bdf
       name: router-broker
     - image: registry.stage.redhat.io/rhcl-tech-preview/mcp-gateway-rhel9-operator@sha256:0662693304bf2342ccb2caa7ff28ef4f1524cc70e5bc1acce9b54e28b4fdb323
       name: controller
