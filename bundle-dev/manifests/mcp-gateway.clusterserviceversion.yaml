@@ -6,7 +6,7 @@ metadata:
     capabilities: Basic Install
     categories: Integration & Delivery
     containerImage: quay.io/redhat-user-workloads/api-management-tenant/nightly-mcp-gateway-operator@sha256:317f71b4c8eafc207ff1cee1a99c835a20a10da56e907533318f657d2b157896
-    createdAt: "2026-07-10T14:32:19Z"
+    createdAt: "2026-07-30T11:43:33Z"
     description: An Envoy-based gateway for Model Context Protocol (MCP) servers
     operators.operatorframework.io/builder: operator-sdk-v1.38.0
     operators.operatorframework.io/project_layout: go.kubebuilder.io/v4
@@ -200,7 +200,7 @@ spec:
                       - --log-level=0
                     env:
                       - name: RELATED_IMAGE_ROUTER_BROKER
-                        value: quay.io/redhat-user-workloads/api-management-tenant/nightly-mcp-gateway@sha256:ca940b2d186a6d8fd9bff94fab04970d1fe561135c00d59c3feeeb7fc12371a6
+                        value: quay.io/redhat-user-workloads/api-management-tenant/nightly-mcp-gateway@sha256:1854986d043454c6bfa03f76aac5692e898a31d45a325f70c56d17ae012c63ff
                     image: quay.io/redhat-user-workloads/api-management-tenant/nightly-mcp-gateway-operator@sha256:317f71b4c8eafc207ff1cee1a99c835a20a10da56e907533318f657d2b157896
                     imagePullPolicy: IfNotPresent
                     livenessProbe:
