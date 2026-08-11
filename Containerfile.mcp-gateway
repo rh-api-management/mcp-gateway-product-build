@@ -34,7 +34,7 @@ RUN CGO_ENABLED=1 GOEXPERIMENT=strictfipsruntime GOOS=linux go build \
 
 FROM registry.redhat.io/ubi9/ubi-minimal:latest
 
-LABEL version="0.7.1" \
+LABEL version="0.8.0" \
       com.redhat.component="mcp-gateway" \
       name="rhcl-tech-preview/mcp-gateway-rhel9" \
       cpe="cpe:/a:redhat:connectivity_link:1::el9" \
