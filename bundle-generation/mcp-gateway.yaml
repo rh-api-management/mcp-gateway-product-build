@@ -45,6 +45,8 @@ features:
 architectures:
   - amd64
   - arm64
+  - s390x
+  - ppc64le
 
 # Registry mappings for each environment
 registries:
