@@ -5,8 +5,8 @@ metadata:
     alm-examples: "[\n  {\n    \"apiVersion\": \"mcp.kuadrant.io/v1\",\n    \"kind\": \"MCPGatewayExtension\",\n    \"metadata\": {\n      \"name\": \"mcp-gateway-extension\",\n      \"namespace\": \"mcp-system\"\n    },\n    \"spec\": {\n      \"targetRef\": {\n        \"group\": \"gateway.networking.k8s.io\",\n        \"kind\": \"Gateway\",\n        \"name\": \"mcp-gateway\",\n        \"namespace\": \"gateway-system\",\n        \"sectionName\": \"mcp\"\n      }\n    }\n  },\n  {\n    \"apiVersion\": \"mcp.kuadrant.io/v1\",\n    \"kind\": \"MCPServerRegistration\",\n    \"metadata\": {\n      \"name\": \"example-server\",\n      \"namespace\": \"mcp-test\"\n    },\n    \"spec\": {\n      \"prefix\": \"example_\",\n      \"targetRef\": {\n        \"group\": \"gateway.networking.k8s.io\",\n        \"kind\": \"HTTPRoute\",\n        \"name\": \"example-route\"\n      }\n    }\n  },\n  {\n    \"apiVersion\": \"mcp.kuadrant.io/v1\",\n    \"kind\": \"MCPVirtualServer\",\n    \"metadata\": {\n      \"name\": \"example-vs\",\n      \"namespace\": \"default\"\n    },\n    \"spec\": {\n      \"description\": \"example virtual server\",\n      \"tools\": [\n        \"server1_tool1\",\n        \"server2_tool2\"\n      ]\n    }\n  }\n]"
     capabilities: Basic Install
     categories: Integration & Delivery
-    containerImage: registry.redhat.io/rhcl-tech-preview/mcp-gateway-rhel9-operator@sha256:c07aa9db972d33a0f55618e6793b6b08a77b670b0cdd1a7004cbc171dc1ad659
-    createdAt: "2026-07-30T11:43:33Z"
+    containerImage: registry.redhat.io/rhcl-tech-preview/mcp-gateway-rhel9-operator@sha256:7828fe83dd189819b5bc5d5ac87b79e2167a5379163a11614be275b2c914b835
+    createdAt: "2026-08-14T15:16:44Z"
     description: An Envoy-based gateway for Model Context Protocol (MCP) servers
     operators.operatorframework.io/builder: operator-sdk-v1.38.0
     operators.operatorframework.io/project_layout: go.kubebuilder.io/v4
@@ -177,6 +177,18 @@ spec:
                 - list
                 - update
                 - watch
+            - apiGroups:
+                - networking.k8s.io
+              resources:
+                - networkpolicies
+              verbs:
+                - create
+                - delete
+                - get
+                - list
+                - patch
+                - update
+                - watch
           serviceAccountName: mcp-controller
       deployments:
         - label:
@@ -202,8 +214,8 @@ spec:
                       - --log-level=0
                     env:
                       - name: RELATED_IMAGE_ROUTER_BROKER
-                        value: registry.redhat.io/rhcl-tech-preview/mcp-gateway-rhel9@sha256:42832a841acf3028ba333ccae23ef60bd740ccf65db0af22e3872438c2f15e47
-                    image: registry.redhat.io/rhcl-tech-preview/mcp-gateway-rhel9-operator@sha256:c07aa9db972d33a0f55618e6793b6b08a77b670b0cdd1a7004cbc171dc1ad659
+                        value: registry.redhat.io/rhcl-tech-preview/mcp-gateway-rhel9@sha256:6c1823e2536190c7bc25d103c3fa3da5a3d6d869b3e3a103665f5d8db5893240
+                    image: registry.redhat.io/rhcl-tech-preview/mcp-gateway-rhel9-operator@sha256:7828fe83dd189819b5bc5d5ac87b79e2167a5379163a11614be275b2c914b835
                     imagePullPolicy: IfNotPresent
                     livenessProbe:
                       httpGet:
@@ -263,8 +275,8 @@ spec:
     name: Kuadrant
     url: https://kuadrant.io
   relatedImages:
-    - image: registry.redhat.io/rhcl-tech-preview/mcp-gateway-rhel9@sha256:42832a841acf3028ba333ccae23ef60bd740ccf65db0af22e3872438c2f15e47
+    - image: registry.redhat.io/rhcl-tech-preview/mcp-gateway-rhel9@sha256:6c1823e2536190c7bc25d103c3fa3da5a3d6d869b3e3a103665f5d8db5893240
       name: router-broker
-    - image: registry.redhat.io/rhcl-tech-preview/mcp-gateway-rhel9-operator@sha256:c07aa9db972d33a0f55618e6793b6b08a77b670b0cdd1a7004cbc171dc1ad659
+    - image: registry.redhat.io/rhcl-tech-preview/mcp-gateway-rhel9-operator@sha256:7828fe83dd189819b5bc5d5ac87b79e2167a5379163a11614be275b2c914b835
       name: controller
   version: 0.0.0-alpha
