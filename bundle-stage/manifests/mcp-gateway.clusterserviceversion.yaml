@@ -6,7 +6,7 @@ metadata:
     capabilities: Basic Install
     categories: Integration & Delivery
     containerImage: registry.stage.redhat.io/rhcl-tech-preview/mcp-gateway-rhel9-operator@sha256:7327837506142a4ef86f275cbb051ae9c0d8194d8bc30e8ae8b11a05a9f51808
-    createdAt: "2026-08-14T15:16:44Z"
+    createdAt: "2026-08-20T18:43:06Z"
     description: An Envoy-based gateway for Model Context Protocol (MCP) servers
     operators.operatorframework.io/builder: operator-sdk-v1.38.0
     operators.operatorframework.io/project_layout: go.kubebuilder.io/v4
@@ -39,27 +39,12 @@ spec:
       - kind: MCPGatewayExtension
         name: mcpgatewayextensions.mcp.kuadrant.io
         version: v1
-      - description: Extends a Gateway API Gateway to handle MCP traffic by deploying a broker-router and configuring Envoy.
-        displayName: MCP Gateway Extension
-        kind: MCPGatewayExtension
-        name: mcpgatewayextensions.mcp.kuadrant.io
-        version: v1alpha1
       - kind: MCPServerRegistration
         name: mcpserverregistrations.mcp.kuadrant.io
         version: v1
-      - description: Registers an upstream MCP server for tool federation through the gateway.
-        displayName: MCP Server Registration
-        kind: MCPServerRegistration
-        name: mcpserverregistrations.mcp.kuadrant.io
-        version: v1alpha1
       - kind: MCPVirtualServer
         name: mcpvirtualservers.mcp.kuadrant.io
         version: v1
-      - description: Defines a virtual MCP server that exposes a curated subset of tools from registered servers.
-        displayName: MCP Virtual Server
-        kind: MCPVirtualServer
-        name: mcpvirtualservers.mcp.kuadrant.io
-        version: v1alpha1
   description: |-
     MCP Gateway enables you to federate, secure, and route Model Context Protocol (MCP) traffic through an Envoy-based gateway.
   displayName: MCP Gateway Operator (Tech Preview)
@@ -214,7 +199,7 @@ spec:
                       - --log-level=0
                     env:
                       - name: RELATED_IMAGE_ROUTER_BROKER
-                        value: registry.stage.redhat.io/rhcl-tech-preview/mcp-gateway-rhel9@sha256:64edb07df67219fade5fa50e83dc55e6fa1270ae90d2a86c6902be0b93dfb5a8
+                        value: registry.stage.redhat.io/rhcl-tech-preview/mcp-gateway-rhel9@sha256:9f84be1b14f7d586967e9c86fdf0543415f2eb5be9ba39f080b8dc0626efe662
                     image: registry.stage.redhat.io/rhcl-tech-preview/mcp-gateway-rhel9-operator@sha256:7327837506142a4ef86f275cbb051ae9c0d8194d8bc30e8ae8b11a05a9f51808
                     imagePullPolicy: IfNotPresent
                     livenessProbe:
@@ -275,7 +260,7 @@ spec:
     name: Kuadrant
     url: https://kuadrant.io
   relatedImages:
-    - image: registry.stage.redhat.io/rhcl-tech-preview/mcp-gateway-rhel9@sha256:64edb07df67219fade5fa50e83dc55e6fa1270ae90d2a86c6902be0b93dfb5a8
+    - image: registry.stage.redhat.io/rhcl-tech-preview/mcp-gateway-rhel9@sha256:9f84be1b14f7d586967e9c86fdf0543415f2eb5be9ba39f080b8dc0626efe662
       name: router-broker
     - image: registry.stage.redhat.io/rhcl-tech-preview/mcp-gateway-rhel9-operator@sha256:7327837506142a4ef86f275cbb051ae9c0d8194d8bc30e8ae8b11a05a9f51808
       name: controller
