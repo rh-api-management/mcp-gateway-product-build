@@ -35,7 +35,6 @@ jobs:
           GH_REPO: ${{ github.repository }}
 
       - name: Checkout PR branch
-        if: steps.check.outputs.mergeable == 'CONFLICTING'
         uses: actions/checkout@v4
         with:
           ref: ${{ github.head_ref }}
@@ -43,7 +42,6 @@ jobs:
           fetch-depth: 0
 
       - name: Install yq
-        if: steps.check.outputs.mergeable == 'CONFLICTING'
         run: |
           sudo wget -qO /usr/local/bin/yq https://github.com/mikefarah/yq/releases/latest/download/yq_linux_amd64
           sudo chmod +x /usr/local/bin/yq
@@ -54,6 +52,7 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
 
+          git fetch origin nightly
           git rebase -X theirs origin/nightly
 
           bash bundle-generation/generate-bundle.sh
@@ -69,15 +68,68 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           GH_REPO: ${{ github.repository }}
+      - name: Merge PR with retries
+        run: |
+          set -uo pipefail
 
-      - name: Approve PR
-        run: gh pr review ${{ github.event.pull_request.number }} --approve
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          GH_REPO: ${{ github.repository }}
+          pr_number="${{ github.event.pull_request.number }}"
+          pr_branch="${{ github.head_ref }}"
+          gh pr review "$pr_number" --approve
 
-      - name: Merge PR
-        run: gh pr merge ${{ github.event.pull_request.number }} --squash --delete-branch
+          refresh_pr_branch() {
+            git config user.name "github-actions[bot]"
+            git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+            git fetch origin nightly
+            git rebase -X theirs origin/nightly
+            bash bundle-generation/generate-bundle.sh
+
+            if git diff --quiet && [ -z "$(git ls-files --others --exclude-standard)" ]; then
+              echo "No changes after regeneration."
+            else
+              git add -A
+              git commit -m "chore(deps): regenerate bundle after rebase"
+            fi
+
+            git push --force-with-lease origin "HEAD:${pr_branch}"
+            gh pr review "$pr_number" --approve
+          }
+
+          for attempt in 1 2 3; do
+            echo "Merge attempt ${attempt}/3"
+            set +e
+            merge_output=$(gh pr merge "$pr_number" --squash --delete-branch 2>&1)
+            merge_status=$?
+            set -e
+            echo "$merge_output"
+
+            if [ "$merge_status" -eq 0 ]; then
+              exit 0
+            fi
+
+            case "$merge_output" in
+              *"Base branch was modified"*)
+                if [ "$attempt" -eq 3 ]; then
+                  echo "Base branch kept changing; giving up after three attempts."
+                  exit "$merge_status"
+                fi
+                echo "Base branch changed; refreshing the PR before retrying."
+                sleep 10
+                refresh_pr_branch
+                for i in $(seq 1 18); do
+                  mergeable=$(gh pr view "$pr_number" --json mergeable --jq '.mergeable')
+                  echo "PR mergeable status: ${mergeable} (attempt ${i})"
+                  if [ "$mergeable" != "UNKNOWN" ]; then
+                    break
+                  fi
+                  sleep 10
+                done
+                ;;
+              *)
+                echo "Merge failed for a non-retryable reason."
+                exit "$merge_status"
+                ;;
+            esac
+          done
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           GH_REPO: ${{ github.repository }}
