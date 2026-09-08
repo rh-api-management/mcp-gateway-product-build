@@ -36,7 +36,7 @@ FROM registry.redhat.io/ubi9/ubi-minimal:latest
 LABEL version="0.0.0-nightly" \
       com.redhat.component="mcp-gateway" \
       name="rhcl-tech-preview/mcp-gateway-rhel9" \
-      cpe="cpe:/a:redhat:connectivity_link:1::el9" \
+      cpe="cpe:/a:redhat:connectivity_link:1.4::el9" \
       vendor="Red Hat, Inc." \
       summary="MCP Gateway broker and router" \
       description="Envoy-based gateway for Model Context Protocol (MCP) servers. Routes MCP requests through Envoy and federates tools from multiple upstream MCP servers." \
