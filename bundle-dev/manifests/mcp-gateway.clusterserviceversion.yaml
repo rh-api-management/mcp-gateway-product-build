@@ -215,7 +215,7 @@ spec:
                       - --log-level=0
                     env:
                       - name: RELATED_IMAGE_ROUTER_BROKER
-                        value: quay.io/redhat-user-workloads/api-management-tenant/nightly-mcp-gateway@sha256:8d9a22e15bb322e3f6907b23b3e03ce0068b143e1d8fc41a588dae1477d2d8dd
+                        value: quay.io/redhat-user-workloads/api-management-tenant/nightly-mcp-gateway@sha256:7dbe51baf27a658a57e3c2dde3cb9bedfaf71b086a64baa2d6773e5b4c952fff
                     image: quay.io/redhat-user-workloads/api-management-tenant/nightly-mcp-gateway-operator@sha256:1d2de23f80f98709add85a5061edc66f87a7ef21667f8fc7ecbbbe1ec0b0205d
                     imagePullPolicy: IfNotPresent
                     livenessProbe:
@@ -276,7 +276,7 @@ spec:
     name: Kuadrant
     url: https://kuadrant.io
   relatedImages:
-    - image: quay.io/redhat-user-workloads/api-management-tenant/nightly-mcp-gateway@sha256:8d9a22e15bb322e3f6907b23b3e03ce0068b143e1d8fc41a588dae1477d2d8dd
+    - image: quay.io/redhat-user-workloads/api-management-tenant/nightly-mcp-gateway@sha256:7dbe51baf27a658a57e3c2dde3cb9bedfaf71b086a64baa2d6773e5b4c952fff
       name: router-broker
     - image: quay.io/redhat-user-workloads/api-management-tenant/nightly-mcp-gateway-operator@sha256:1d2de23f80f98709add85a5061edc66f87a7ef21667f8fc7ecbbbe1ec0b0205d
       name: controller
