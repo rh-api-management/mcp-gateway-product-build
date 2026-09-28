@@ -51,8 +51,8 @@ architectures:
 # Registry mappings for each environment
 registries:
   dev:
-    mcp-gateway: quay.io/redhat-user-workloads/api-management-tenant/rhcl-1-4-mcp-gateway
-    mcp-gateway-operator: quay.io/redhat-user-workloads/api-management-tenant/rhcl-1-4-mcp-gateway-operator
+    mcp-gateway: quay.io/redhat-user-workloads/api-management-tenant/rhcl-1-5-mcp-gateway
+    mcp-gateway-operator: quay.io/redhat-user-workloads/api-management-tenant/rhcl-1-5-mcp-gateway-operator
   stage:
     mcp-gateway: registry.stage.redhat.io/rhcl-tech-preview/mcp-gateway-rhel9
     mcp-gateway-operator: registry.stage.redhat.io/rhcl-tech-preview/mcp-gateway-rhel9-operator

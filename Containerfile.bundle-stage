@@ -10,7 +10,7 @@ LABEL operators.operatorframework.io.bundle.channel.default.v1=preview
 LABEL version="0.7.1" \
       summary="MCP Gateway enables you to federate, secure, and route Model Context Protocol (MCP) traffic through an Envoy-based gateway." \
       name="rhcl-tech-preview/rhcl-operator-bundle" \
-      cpe="cpe:/a:redhat:connectivity_link:1::el9" \
+      cpe="cpe:/a:redhat:connectivity_link:1.5::el9" \
       description="MCP Gateway enables you to federate, secure, and route Model Context Protocol (MCP) traffic through an Envoy-based gateway." \
       io.k8s.display-name="MCP Gateway Operator Bundle" \
       io.k8s.description="MCP Gateway Operator Bundle" \
@@ -18,7 +18,7 @@ LABEL version="0.7.1" \
       io.openshift.tags="api, mcp, gateway" \
       url="redhat.com" \
       distribution-scope="public" \
-      release="1.4.1" \
+      release="1.5.0" \
       com.redhat.component="MCP Gateway Operator Bundle" \
       vendor="Red Hat, Inc."
 
