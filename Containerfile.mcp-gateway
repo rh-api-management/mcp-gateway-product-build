@@ -36,7 +36,7 @@ FROM registry.redhat.io/ubi9/ubi-minimal:latest
 
 LABEL version="1.0.1" \
       com.redhat.component="mcp-gateway" \
-      name="rhcl-tech-preview/mcp-gateway-rhel9" \
+      name="rhcl-1/mcp-gateway-rhel9" \
       cpe="cpe:/a:redhat:connectivity_link:1.5::el9" \
       vendor="Red Hat, Inc." \
       summary="MCP Gateway broker and router" \
