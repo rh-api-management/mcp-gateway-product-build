@@ -32,7 +32,9 @@ RUN CGO_ENABLED=1 GOEXPERIMENT=strictfipsruntime GOOS=linux go build \
     ./cmd/mcp-broker-router/
 
 
-FROM registry.redhat.io/ubi9/ubi-minimal:latest
+# Use the RHEL9 PQC variant of ubi-minimal, which ships with the system-wide
+# crypto policy set to DEFAULT:PQ (CONNLINK-1566).
+FROM registry.redhat.io/ubi9/ubi-minimal-pqc:latest
 
 LABEL version="1.0.1" \
       com.redhat.component="mcp-gateway" \
