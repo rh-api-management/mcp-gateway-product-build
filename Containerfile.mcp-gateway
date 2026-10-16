@@ -36,7 +36,7 @@ RUN CGO_ENABLED=1 GOEXPERIMENT=strictfipsruntime GOOS=linux go build \
 # crypto policy set to DEFAULT:PQ (CONNLINK-1566).
 FROM registry.redhat.io/ubi9/ubi-minimal-pqc:latest
 
-LABEL version="1.0.1" \
+LABEL version="1.0.2" \
       com.redhat.component="mcp-gateway" \
       name="rhcl-1/mcp-gateway-rhel9" \
       cpe="cpe:/a:redhat:connectivity_link:1.5::el9" \
