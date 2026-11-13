@@ -5,7 +5,7 @@ metadata:
     alm-examples: "[\n  {\n    \"apiVersion\": \"mcp.kuadrant.io/v1\",\n    \"kind\": \"MCPGatewayExtension\",\n    \"metadata\": {\n      \"name\": \"mcp-gateway-extension\",\n      \"namespace\": \"mcp-system\"\n    },\n    \"spec\": {\n      \"targetRef\": {\n        \"group\": \"gateway.networking.k8s.io\",\n        \"kind\": \"Gateway\",\n        \"name\": \"mcp-gateway\",\n        \"namespace\": \"gateway-system\",\n        \"sectionName\": \"mcp\"\n      }\n    }\n  },\n  {\n    \"apiVersion\": \"mcp.kuadrant.io/v1\",\n    \"kind\": \"MCPServerRegistration\",\n    \"metadata\": {\n      \"name\": \"example-server\",\n      \"namespace\": \"mcp-test\"\n    },\n    \"spec\": {\n      \"prefix\": \"example_\",\n      \"targetRef\": {\n        \"group\": \"gateway.networking.k8s.io\",\n        \"kind\": \"HTTPRoute\",\n        \"name\": \"example-route\"\n      }\n    }\n  },\n  {\n    \"apiVersion\": \"mcp.kuadrant.io/v1\",\n    \"kind\": \"MCPVirtualServer\",\n    \"metadata\": {\n      \"name\": \"example-vs\",\n      \"namespace\": \"default\"\n    },\n    \"spec\": {\n      \"description\": \"example virtual server\",\n      \"tools\": [\n        \"server1_tool1\",\n        \"server2_tool2\"\n      ]\n    }\n  }\n]"
     capabilities: Basic Install
     categories: Integration & Delivery
-    containerImage: registry.stage.redhat.io/rhcl-tech-preview/mcp-gateway-rhel9-operator@sha256:e0d7833aa755449940d6f404498e844f0b2ee220e75a8fca961a1c94e1319923
+    containerImage: registry.stage.redhat.io/rhcl-tech-preview/mcp-gateway-rhel9-operator@sha256:c630ce1bd9cd0f8c13d0a0828e45c5d8c2452da2ece14a317f3af7bf1b1876ed
     createdAt: "2026-09-10T07:30:51Z"
     description: An Envoy-based gateway for Model Context Protocol (MCP) servers
     operators.operatorframework.io/builder: operator-sdk-v1.38.0
@@ -216,7 +216,7 @@ spec:
                     env:
                       - name: RELATED_IMAGE_ROUTER_BROKER
                         value: registry.stage.redhat.io/rhcl-tech-preview/mcp-gateway-rhel9@sha256:392271568fb02216496f39baccb606b920bd5b23c789ac6568d4a40018c0b7ad
-                    image: registry.stage.redhat.io/rhcl-tech-preview/mcp-gateway-rhel9-operator@sha256:e0d7833aa755449940d6f404498e844f0b2ee220e75a8fca961a1c94e1319923
+                    image: registry.stage.redhat.io/rhcl-tech-preview/mcp-gateway-rhel9-operator@sha256:c630ce1bd9cd0f8c13d0a0828e45c5d8c2452da2ece14a317f3af7bf1b1876ed
                     imagePullPolicy: IfNotPresent
                     livenessProbe:
                       httpGet:
@@ -278,6 +278,6 @@ spec:
   relatedImages:
     - image: registry.stage.redhat.io/rhcl-tech-preview/mcp-gateway-rhel9@sha256:392271568fb02216496f39baccb606b920bd5b23c789ac6568d4a40018c0b7ad
       name: router-broker
-    - image: registry.stage.redhat.io/rhcl-tech-preview/mcp-gateway-rhel9-operator@sha256:e0d7833aa755449940d6f404498e844f0b2ee220e75a8fca961a1c94e1319923
+    - image: registry.stage.redhat.io/rhcl-tech-preview/mcp-gateway-rhel9-operator@sha256:c630ce1bd9cd0f8c13d0a0828e45c5d8c2452da2ece14a317f3af7bf1b1876ed
       name: controller
   version: 0.0.0-alpha
