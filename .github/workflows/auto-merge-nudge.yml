@@ -25,7 +25,7 @@ jobs:
         id: check
         run: |
           for i in $(seq 1 18); do
-            mergeable=$(gh pr view ${{ github.event.pull_request.number }} --json mergeable --jq '.mergeable')
+            mergeable=$(gh pr view "$PR_NUMBER" --json mergeable --jq '.mergeable')
             echo "PR mergeable status: $mergeable (attempt $i)"
             if [ "$mergeable" != "UNKNOWN" ]; then
               break
@@ -36,6 +36,8 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           GH_REPO: ${{ github.repository }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+          PR_BRANCH: ${{ github.head_ref }}
 
       - name: Checkout PR branch
         uses: actions/checkout@v4
@@ -67,16 +69,18 @@ jobs:
             git commit -m "chore(deps): regenerate bundle after rebase"
           fi
 
-          git push --force-with-lease origin HEAD:${{ github.head_ref }}
+          git push --force-with-lease origin "HEAD:${PR_BRANCH}"
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           GH_REPO: ${{ github.repository }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+          PR_BRANCH: ${{ github.head_ref }}
       - name: Merge PR with retries
         run: |
           set -uo pipefail
 
-          pr_number="${{ github.event.pull_request.number }}"
-          pr_branch="${{ github.head_ref }}"
+          pr_number="$PR_NUMBER"
+          pr_branch="$PR_BRANCH"
           gh pr review "$pr_number" --approve
 
           refresh_pr_branch() {
@@ -136,3 +140,5 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           GH_REPO: ${{ github.repository }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+          PR_BRANCH: ${{ github.head_ref }}
